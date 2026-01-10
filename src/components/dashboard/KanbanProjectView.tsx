@@ -25,6 +25,20 @@ export function KanbanProjectView({
     toast.success(`Uploading ${projectApplicants.length} candidates from "${project.name}" to Google Drive`);
   };
 
+  // Handle changes from the kanban board and merge with full applicant list
+  const handleKanbanChange = (updatedProjectApplicants: Applicant[]) => {
+    // Create a map of updated applicants for quick lookup
+    const updatedMap = new Map(updatedProjectApplicants.map(a => [a.id, a]));
+    
+    // Merge updates with the full applicant list
+    const mergedApplicants = applicants.map(applicant => {
+      const updated = updatedMap.get(applicant.id);
+      return updated || applicant;
+    });
+    
+    onApplicantsChange(mergedApplicants);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -49,7 +63,7 @@ export function KanbanProjectView({
       </div>
       <KanbanBoard
         applicants={projectApplicants}
-        onApplicantsChange={onApplicantsChange}
+        onApplicantsChange={handleKanbanChange}
       />
     </div>
   );
