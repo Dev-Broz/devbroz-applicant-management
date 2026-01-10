@@ -8,6 +8,11 @@ export type ApplicantStatus = 'New Applicants' | 'Reviewed' | 'Shortlisted' | 'A
 
 export type DataSource = 'talent-pool' | 'work-with-us';
 
+export interface ApplicationResponse {
+  question: string;
+  answer: string;
+}
+
 export interface Applicant {
   id: string;
   name: string;
@@ -26,6 +31,15 @@ export interface Applicant {
   jobId?: string;
   jobDescription?: string;
   source: DataSource;
+  // Application form responses
+  applicationResponses: ApplicationResponse[];
+  education?: string;
+  currentCompany?: string;
+  linkedIn?: string;
+  portfolio?: string;
+  expectedSalary?: string;
+  noticePeriod?: string;
+  summary?: string;
 }
 
 export interface FilterState {

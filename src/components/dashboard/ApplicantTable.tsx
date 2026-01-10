@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, Upload, Plus } from 'lucide-react';
+import { FileText, Upload, Plus, Eye } from 'lucide-react';
 import { Applicant, DataSource } from '@/types/applicant';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { ApplicantDetailModal } from './ApplicantDetailModal';
 
 interface ApplicantTableProps {
   applicants: Applicant[];
@@ -37,6 +38,9 @@ export function ApplicantTable({
   onSelectionChange,
   onCreateKanbanProject,
 }: ApplicantTableProps) {
+  const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const toggleSelect = (id: string) => {
     const newSelected = new Set(selectedIds);
     if (newSelected.has(id)) {
@@ -66,6 +70,11 @@ export function ApplicantTable({
 
   const handleViewResume = (applicant: Applicant) => {
     toast.info(`Opening resume for ${applicant.name}`);
+  };
+
+  const handleViewApplicant = (applicant: Applicant) => {
+    setSelectedApplicant(applicant);
+    setIsModalOpen(true);
   };
 
   const showJobColumns = dataSource === 'work-with-us';
@@ -208,21 +217,38 @@ export function ApplicantTable({
                   <span className="text-sm text-muted-foreground">{applicant.appliedDate}</span>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleViewResume(applicant)}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <FileText className="mr-1.5 h-4 w-4" />
-                    Resume
-                  </Button>
+                  <div className="flex items-center justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewApplicant(applicant)}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <Eye className="mr-1.5 h-4 w-4" />
+                      View
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewResume(applicant)}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <FileText className="mr-1.5 h-4 w-4" />
+                      Resume
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+
+      <ApplicantDetailModal
+        applicant={selectedApplicant}
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+      />
     </div>
   );
 }

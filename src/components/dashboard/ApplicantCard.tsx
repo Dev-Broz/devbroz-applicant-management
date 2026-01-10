@@ -1,9 +1,11 @@
-import { GripVertical, Mail, MapPin, FileText, Upload } from 'lucide-react';
+import { useState } from 'react';
+import { GripVertical, Mail, MapPin, FileText, Upload, Eye } from 'lucide-react';
 import { Applicant } from '@/types/applicant';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { ApplicantDetailModal } from './ApplicantDetailModal';
 
 interface ApplicantCardProps {
   applicant: Applicant;
@@ -11,6 +13,8 @@ interface ApplicantCardProps {
 }
 
 export function ApplicantCard({ applicant, isDragging }: ApplicantCardProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleViewResume = () => {
     toast.info(`Opening resume for ${applicant.name}`);
   };
@@ -20,6 +24,7 @@ export function ApplicantCard({ applicant, isDragging }: ApplicantCardProps) {
   };
 
   return (
+    <>
     <div
       className={cn(
         'group rounded-lg border border-border bg-card p-4 shadow-card transition-all duration-200',
@@ -88,10 +93,10 @@ export function ApplicantCard({ applicant, isDragging }: ApplicantCardProps) {
           variant="outline"
           size="sm"
           className="flex-1 h-8 text-xs"
-          onClick={handleViewResume}
+          onClick={() => setIsModalOpen(true)}
         >
-          <FileText className="mr-1.5 h-3.5 w-3.5" />
-          Resume
+          <Eye className="mr-1.5 h-3.5 w-3.5" />
+          View
         </Button>
         <Button
           size="sm"
@@ -102,6 +107,13 @@ export function ApplicantCard({ applicant, isDragging }: ApplicantCardProps) {
           To Drive
         </Button>
       </div>
+
+      <ApplicantDetailModal
+        applicant={applicant}
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+      />
     </div>
+    </>
   );
 }
