@@ -47,7 +47,7 @@ export function KanbanColumn({ status, applicants, color }: KanbanColumnProps) {
                     {...provided.dragHandleProps}
                     style={{
                       ...provided.draggableProps.style,
-                      // Prevent transform issues during drag
+                      transition: snapshot.isDragging ? 'none' : undefined,
                     }}
                   >
                     <ApplicantCard applicant={applicant} isDragging={snapshot.isDragging} />

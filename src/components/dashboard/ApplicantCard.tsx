@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { GripVertical, Mail, MapPin, Eye } from 'lucide-react';
 import { Applicant } from '@/types/applicant';
 import { Button } from '@/components/ui/button';
@@ -11,15 +11,15 @@ interface ApplicantCardProps {
   isDragging?: boolean;
 }
 
-export function ApplicantCard({ applicant, isDragging }: ApplicantCardProps) {
+export const ApplicantCard = memo(function ApplicantCard({ applicant, isDragging }: ApplicantCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <>
     <div
       className={cn(
-        'group rounded-lg border border-border bg-card p-4 shadow-card transition-all duration-200',
-        isDragging ? 'shadow-card-hover ring-2 ring-primary/20' : 'hover:shadow-card-hover'
+        'group rounded-lg border border-border bg-card p-4 shadow-card will-change-transform',
+        isDragging ? 'shadow-card-hover ring-2 ring-primary/20' : 'hover:shadow-card-hover transition-shadow duration-200'
       )}
     >
       <div className="flex items-start gap-3">
@@ -99,4 +99,4 @@ export function ApplicantCard({ applicant, isDragging }: ApplicantCardProps) {
     </div>
     </>
   );
-}
+});

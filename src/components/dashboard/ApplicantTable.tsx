@@ -21,7 +21,7 @@ interface ApplicantTableProps {
   dataSource: DataSource;
   selectedIds: Set<string>;
   onSelectionChange: (ids: Set<string>) => void;
-  onCreateKanbanProject: () => void;
+  onCreatePipeline: () => void;
 }
 
 const statusStyles: Record<string, string> = {
@@ -36,7 +36,7 @@ export function ApplicantTable({
   dataSource,
   selectedIds,
   onSelectionChange,
-  onCreateKanbanProject,
+  onCreatePipeline,
 }: ApplicantTableProps) {
   const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -82,12 +82,12 @@ export function ApplicantTable({
           {applicants.length} applicants
         </p>
         <Button
-          onClick={onCreateKanbanProject}
+          onClick={onCreatePipeline}
           variant="outline"
           disabled={selectedIds.size === 0}
         >
           <Plus className="mr-2 h-4 w-4" />
-          Create Kanban Project ({selectedIds.size})
+          Create Pipeline ({selectedIds.size})
         </Button>
       </div>
 
