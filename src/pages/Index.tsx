@@ -1,14 +1,25 @@
 import { useState, useMemo } from 'react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { FilterSidebar } from '@/components/dashboard/FilterSidebar';
-import { KanbanBoard } from '@/components/dashboard/KanbanBoard';
 import { ApplicantTable } from '@/components/dashboard/ApplicantTable';
-import { mockApplicants } from '@/data/applicants';
+import { DataSourceTabs, ViewTab } from '@/components/dashboard/DataSourceTabs';
+import { CreateProjectDialog } from '@/components/dashboard/CreateProjectDialog';
+import { KanbanProjectsList } from '@/components/dashboard/KanbanProjectsList';
+import { KanbanProjectView } from '@/components/dashboard/KanbanProjectView';
+import { talentPoolApplicants, workWithUsApplicants } from '@/data/applicants';
 import { FilterState, Applicant } from '@/types/applicant';
+import { useKanbanProjects } from '@/hooks/useKanbanProjects';
+import { toast } from 'sonner';
 
 const Index = () => {
-  const [viewMode, setViewMode] = useState<'board' | 'table'>('board');
-  const [applicants, setApplicants] = useState<Applicant[]>(mockApplicants);
+  const [activeTab, setActiveTab] = useState<ViewTab>('talent-pool');
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [talentPool, setTalentPool] = useState<Applicant[]>(talentPoolApplicants);
+  const [workWithUs, setWorkWithUs] = useState<Applicant[]>(workWithUsApplicants);
+  const [talentPoolSelected, setTalentPoolSelected] = useState<Set<string>>(new Set());
+  const [workWithUsSelected, setWorkWithUsSelected] = useState<Set<string>>(new Set());
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [createDialogSource, setCreateDialogSource] = useState<'talent-pool' | 'work-with-us'>('talent-pool');
   const [filters, setFilters] = useState<FilterState>({
     categories: [],
     experienceLevels: [],
@@ -16,9 +27,12 @@ const Index = () => {
     searchQuery: '',
   });
 
-  const filteredApplicants = useMemo(() => {
+  const { projects, createProject, deleteProject, getProject } = useKanbanProjects();
+
+  const allApplicants = useMemo(() => [...talentPool, ...workWithUs], [talentPool, workWithUs]);
+
+  const filterApplicants = (applicants: Applicant[]) => {
     return applicants.filter((applicant) => {
-      // Search filter
       if (filters.searchQuery) {
         const query = filters.searchQuery.toLowerCase();
         const matchesSearch =
@@ -28,28 +42,115 @@ const Index = () => {
           applicant.skills.some((skill) => skill.toLowerCase().includes(query));
         if (!matchesSearch) return false;
       }
-
-      // Category filter
       if (filters.categories.length > 0) {
         if (!filters.categories.includes(applicant.category)) return false;
       }
-
-      // Experience filter
       if (filters.experienceLevels.length > 0) {
         if (!filters.experienceLevels.includes(applicant.experience)) return false;
       }
-
-      // Employment type filter
       if (filters.employmentTypes.length > 0) {
         if (!filters.employmentTypes.includes(applicant.employmentType)) return false;
       }
-
       return true;
     });
-  }, [applicants, filters]);
+  };
+
+  const filteredTalentPool = useMemo(() => filterApplicants(talentPool), [talentPool, filters]);
+  const filteredWorkWithUs = useMemo(() => filterApplicants(workWithUs), [workWithUs, filters]);
 
   const handleSearchChange = (query: string) => {
     setFilters((prev) => ({ ...prev, searchQuery: query }));
+  };
+
+  const handleCreateKanbanProject = (source: 'talent-pool' | 'work-with-us') => {
+    setCreateDialogSource(source);
+    setCreateDialogOpen(true);
+  };
+
+  const handleConfirmCreateProject = (projectName: string) => {
+    const selectedIds = createDialogSource === 'talent-pool' ? talentPoolSelected : workWithUsSelected;
+    createProject(projectName, Array.from(selectedIds));
+    toast.success(`Created project "${projectName}" with ${selectedIds.size} candidates`);
+    
+    // Clear selection
+    if (createDialogSource === 'talent-pool') {
+      setTalentPoolSelected(new Set());
+    } else {
+      setWorkWithUsSelected(new Set());
+    }
+    
+    // Navigate to kanban projects tab
+    setActiveTab('kanban-projects');
+  };
+
+  const handleSelectProject = (projectId: string) => {
+    setSelectedProjectId(projectId);
+  };
+
+  const handleBackFromProject = () => {
+    setSelectedProjectId(null);
+  };
+
+  const handleApplicantsChange = (updatedApplicants: Applicant[]) => {
+    // Update both data sources based on the applicant's source field
+    const updatedTalentPool = talentPool.map((tp) => {
+      const updated = updatedApplicants.find((a) => a.id === tp.id);
+      return updated || tp;
+    });
+    const updatedWorkWithUs = workWithUs.map((wwu) => {
+      const updated = updatedApplicants.find((a) => a.id === wwu.id);
+      return updated || wwu;
+    });
+    setTalentPool(updatedTalentPool);
+    setWorkWithUs(updatedWorkWithUs);
+  };
+
+  const currentProject = selectedProjectId ? getProject(selectedProjectId) : null;
+
+  const renderContent = () => {
+    // If viewing a specific kanban project
+    if (currentProject) {
+      return (
+        <KanbanProjectView
+          project={currentProject}
+          applicants={allApplicants}
+          onBack={handleBackFromProject}
+          onApplicantsChange={handleApplicantsChange}
+        />
+      );
+    }
+
+    // Otherwise show the appropriate tab content
+    switch (activeTab) {
+      case 'talent-pool':
+        return (
+          <ApplicantTable
+            applicants={filteredTalentPool}
+            dataSource="talent-pool"
+            selectedIds={talentPoolSelected}
+            onSelectionChange={setTalentPoolSelected}
+            onCreateKanbanProject={() => handleCreateKanbanProject('talent-pool')}
+          />
+        );
+      case 'work-with-us':
+        return (
+          <ApplicantTable
+            applicants={filteredWorkWithUs}
+            dataSource="work-with-us"
+            selectedIds={workWithUsSelected}
+            onSelectionChange={setWorkWithUsSelected}
+            onCreateKanbanProject={() => handleCreateKanbanProject('work-with-us')}
+          />
+        );
+      case 'kanban-projects':
+        return (
+          <KanbanProjectsList
+            projects={projects}
+            onSelectProject={handleSelectProject}
+            onDeleteProject={deleteProject}
+          />
+        );
+    }
   };
 
   return (
@@ -57,24 +158,35 @@ const Index = () => {
       <DashboardHeader
         searchQuery={filters.searchQuery}
         onSearchChange={handleSearchChange}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
       />
 
       <div className="flex flex-1 overflow-hidden">
         <FilterSidebar filters={filters} onFiltersChange={setFilters} />
 
         <main className="flex-1 overflow-auto p-6">
-          {viewMode === 'board' ? (
-            <KanbanBoard
-              applicants={filteredApplicants}
-              onApplicantsChange={setApplicants}
-            />
-          ) : (
-            <ApplicantTable applicants={filteredApplicants} />
+          {!currentProject && (
+            <div className="mb-6">
+              <DataSourceTabs
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                kanbanProjectCount={projects.length}
+              />
+            </div>
           )}
+          {renderContent()}
         </main>
       </div>
+
+      <CreateProjectDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        selectedCount={
+          createDialogSource === 'talent-pool'
+            ? talentPoolSelected.size
+            : workWithUsSelected.size
+        }
+        onConfirm={handleConfirmCreateProject}
+      />
     </div>
   );
 };

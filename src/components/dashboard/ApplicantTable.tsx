@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { FileText, Upload } from 'lucide-react';
-import { Applicant } from '@/types/applicant';
+import { FileText, Upload, Plus } from 'lucide-react';
+import { Applicant, DataSource } from '@/types/applicant';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,10 @@ import { toast } from 'sonner';
 
 interface ApplicantTableProps {
   applicants: Applicant[];
+  dataSource: DataSource;
+  selectedIds: Set<string>;
+  onSelectionChange: (ids: Set<string>) => void;
+  onCreateKanbanProject: () => void;
 }
 
 const statusStyles: Record<string, string> = {
@@ -26,9 +30,13 @@ const statusStyles: Record<string, string> = {
   'Archived': 'bg-muted text-muted-foreground border-muted',
 };
 
-export function ApplicantTable({ applicants }: ApplicantTableProps) {
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-
+export function ApplicantTable({
+  applicants,
+  dataSource,
+  selectedIds,
+  onSelectionChange,
+  onCreateKanbanProject,
+}: ApplicantTableProps) {
   const toggleSelect = (id: string) => {
     const newSelected = new Set(selectedIds);
     if (newSelected.has(id)) {
@@ -36,14 +44,14 @@ export function ApplicantTable({ applicants }: ApplicantTableProps) {
     } else {
       newSelected.add(id);
     }
-    setSelectedIds(newSelected);
+    onSelectionChange(newSelected);
   };
 
   const toggleSelectAll = () => {
     if (selectedIds.size === applicants.length) {
-      setSelectedIds(new Set());
+      onSelectionChange(new Set());
     } else {
-      setSelectedIds(new Set(applicants.map((a) => a.id)));
+      onSelectionChange(new Set(applicants.map((a) => a.id)));
     }
   };
 
@@ -53,12 +61,14 @@ export function ApplicantTable({ applicants }: ApplicantTableProps) {
       return;
     }
     toast.success(`Uploading ${selectedIds.size} files to Google Drive`);
-    setSelectedIds(new Set());
+    onSelectionChange(new Set());
   };
 
   const handleViewResume = (applicant: Applicant) => {
     toast.info(`Opening resume for ${applicant.name}`);
   };
+
+  const showJobColumns = dataSource === 'work-with-us';
 
   return (
     <div className="space-y-4">
@@ -66,14 +76,24 @@ export function ApplicantTable({ applicants }: ApplicantTableProps) {
         <p className="text-sm text-muted-foreground">
           {applicants.length} applicants
         </p>
-        <Button
-          onClick={handleBulkUpload}
-          className="bg-primary hover:bg-primary/90"
-          disabled={selectedIds.size === 0}
-        >
-          <Upload className="mr-2 h-4 w-4" />
-          Bulk Upload to Drive ({selectedIds.size})
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={onCreateKanbanProject}
+            variant="outline"
+            disabled={selectedIds.size === 0}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Create Kanban Project ({selectedIds.size})
+          </Button>
+          <Button
+            onClick={handleBulkUpload}
+            className="bg-primary hover:bg-primary/90"
+            disabled={selectedIds.size === 0}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Bulk Upload to Drive ({selectedIds.size})
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-lg border border-border bg-card overflow-hidden">
@@ -89,6 +109,12 @@ export function ApplicantTable({ applicants }: ApplicantTableProps) {
               </TableHead>
               <TableHead className="font-semibold">Applicant</TableHead>
               <TableHead className="font-semibold">Contact</TableHead>
+              {showJobColumns && (
+                <>
+                  <TableHead className="font-semibold">Job ID</TableHead>
+                  <TableHead className="font-semibold">Job Description</TableHead>
+                </>
+              )}
               <TableHead className="font-semibold">Category</TableHead>
               <TableHead className="font-semibold">Experience</TableHead>
               <TableHead className="font-semibold">Type</TableHead>
@@ -135,6 +161,20 @@ export function ApplicantTable({ applicants }: ApplicantTableProps) {
                     <p className="text-xs text-muted-foreground">{applicant.phone}</p>
                   </div>
                 </TableCell>
+                {showJobColumns && (
+                  <>
+                    <TableCell>
+                      <Badge variant="outline" className="font-mono text-xs bg-muted border-0">
+                        {applicant.jobId || '-'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm max-w-[200px] truncate block">
+                        {applicant.jobDescription || '-'}
+                      </span>
+                    </TableCell>
+                  </>
+                )}
                 <TableCell>
                   <Badge variant="outline" className="font-normal bg-secondary border-0">
                     {applicant.category}
