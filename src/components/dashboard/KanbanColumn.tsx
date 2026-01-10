@@ -36,6 +36,7 @@ export function KanbanColumn({ status, applicants, color }: KanbanColumnProps) {
               'flex-1 space-y-3 rounded-lg p-2 transition-colors min-h-[200px]',
               snapshot.isDraggingOver ? 'bg-accent/50' : 'bg-transparent'
             )}
+            style={{ overflow: 'visible' }}
           >
             {applicants.map((applicant, index) => (
               <Draggable key={applicant.id} draggableId={applicant.id} index={index}>
@@ -44,6 +45,10 @@ export function KanbanColumn({ status, applicants, color }: KanbanColumnProps) {
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
+                    style={{
+                      ...provided.draggableProps.style,
+                      // Prevent transform issues during drag
+                    }}
                   >
                     <ApplicantCard applicant={applicant} isDragging={snapshot.isDragging} />
                   </div>

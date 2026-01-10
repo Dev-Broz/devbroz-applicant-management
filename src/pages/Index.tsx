@@ -12,6 +12,7 @@ import { useTalentPoolApplicants, useWorkWithUsApplicants, useUpdateApplicantSta
 import { seedDatabase } from '@/utils/seedDatabase';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<ViewTab>('talent-pool');
@@ -187,7 +188,7 @@ const Index = () => {
       <div className="flex flex-1 overflow-hidden">
         <FilterSidebar filters={filters} onFiltersChange={setFilters} />
 
-        <main className="flex-1 overflow-auto p-6">
+        <main className={cn("flex-1 p-6", currentProject ? "overflow-visible" : "overflow-auto")}>
           {!currentProject && (
             <div className="mb-6">
               <DataSourceTabs
