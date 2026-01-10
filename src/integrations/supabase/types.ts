@@ -14,7 +14,150 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      talent_pool_applicants: {
+        Row: {
+          application_responses: Json | null
+          applied_date: string
+          category: string
+          created_at: string
+          current_company: string | null
+          education: string | null
+          email: string
+          employment_type: string
+          expected_salary: string | null
+          experience_level: string
+          id: string
+          linkedin: string | null
+          name: string
+          notice_period: string | null
+          phone: string | null
+          portfolio: string | null
+          skills: string[] | null
+          status: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          application_responses?: Json | null
+          applied_date?: string
+          category: string
+          created_at?: string
+          current_company?: string | null
+          education?: string | null
+          email: string
+          employment_type: string
+          expected_salary?: string | null
+          experience_level: string
+          id?: string
+          linkedin?: string | null
+          name: string
+          notice_period?: string | null
+          phone?: string | null
+          portfolio?: string | null
+          skills?: string[] | null
+          status?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          application_responses?: Json | null
+          applied_date?: string
+          category?: string
+          created_at?: string
+          current_company?: string | null
+          education?: string | null
+          email?: string
+          employment_type?: string
+          expected_salary?: string | null
+          experience_level?: string
+          id?: string
+          linkedin?: string | null
+          name?: string
+          notice_period?: string | null
+          phone?: string | null
+          portfolio?: string | null
+          skills?: string[] | null
+          status?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      work_with_us_applicants: {
+        Row: {
+          application_responses: Json | null
+          applied_date: string
+          category: string
+          created_at: string
+          current_company: string | null
+          education: string | null
+          email: string
+          employment_type: string
+          expected_salary: string | null
+          experience_level: string
+          id: string
+          job_description: string | null
+          job_id: string | null
+          linkedin: string | null
+          name: string
+          notice_period: string | null
+          phone: string | null
+          portfolio: string | null
+          skills: string[] | null
+          status: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          application_responses?: Json | null
+          applied_date?: string
+          category: string
+          created_at?: string
+          current_company?: string | null
+          education?: string | null
+          email: string
+          employment_type: string
+          expected_salary?: string | null
+          experience_level: string
+          id?: string
+          job_description?: string | null
+          job_id?: string | null
+          linkedin?: string | null
+          name: string
+          notice_period?: string | null
+          phone?: string | null
+          portfolio?: string | null
+          skills?: string[] | null
+          status?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          application_responses?: Json | null
+          applied_date?: string
+          category?: string
+          created_at?: string
+          current_company?: string | null
+          education?: string | null
+          email?: string
+          employment_type?: string
+          expected_salary?: string | null
+          experience_level?: string
+          id?: string
+          job_description?: string | null
+          job_id?: string | null
+          linkedin?: string | null
+          name?: string
+          notice_period?: string | null
+          phone?: string | null
+          portfolio?: string | null
+          skills?: string[] | null
+          status?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
