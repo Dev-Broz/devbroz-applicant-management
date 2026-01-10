@@ -6,6 +6,8 @@ export type EmploymentType = 'Full-time' | 'Freelance';
 
 export type ApplicantStatus = 'New Applicants' | 'Reviewed' | 'Shortlisted' | 'Archived';
 
+export type DataSource = 'talent-pool' | 'work-with-us';
+
 export interface Applicant {
   id: string;
   name: string;
@@ -20,6 +22,10 @@ export interface Applicant {
   skills: string[];
   appliedDate: string;
   avatarColor: string;
+  // Work With Us specific fields
+  jobId?: string;
+  jobDescription?: string;
+  source: DataSource;
 }
 
 export interface FilterState {
@@ -27,4 +33,11 @@ export interface FilterState {
   experienceLevels: ExperienceLevel[];
   employmentTypes: EmploymentType[];
   searchQuery: string;
+}
+
+export interface KanbanProject {
+  id: string;
+  name: string;
+  createdAt: string;
+  applicantIds: string[];
 }

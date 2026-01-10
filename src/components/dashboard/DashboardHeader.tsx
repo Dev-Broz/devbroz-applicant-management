@@ -1,20 +1,15 @@
-import { Search, LayoutGrid, Table2, Bell, Settings } from 'lucide-react';
+import { Search, Bell, Settings } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
 interface DashboardHeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  viewMode: 'board' | 'table';
-  onViewModeChange: (mode: 'board' | 'table') => void;
 }
 
 export function DashboardHeader({
   searchQuery,
   onSearchChange,
-  viewMode,
-  onViewModeChange,
 }: DashboardHeaderProps) {
   return (
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-6">
@@ -39,31 +34,6 @@ export function DashboardHeader({
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="flex rounded-lg border border-border bg-muted p-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onViewModeChange('board')}
-            className={cn(
-              'h-8 px-3',
-              viewMode === 'board' ? 'bg-card shadow-sm' : 'hover:bg-transparent'
-            )}
-          >
-            <LayoutGrid className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onViewModeChange('table')}
-            className={cn(
-              'h-8 px-3',
-              viewMode === 'table' ? 'bg-card shadow-sm' : 'hover:bg-transparent'
-            )}
-          >
-            <Table2 className="h-4 w-4" />
-          </Button>
-        </div>
-
         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
           <Bell className="h-5 w-5" />
         </Button>

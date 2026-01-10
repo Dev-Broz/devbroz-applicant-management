@@ -11,9 +11,10 @@ const avatarColors = [
   'bg-teal-500',
 ];
 
-export const mockApplicants: Applicant[] = [
+// Talent Pool data (existing applicants)
+export const talentPoolApplicants: Applicant[] = [
   {
-    id: '1',
+    id: 'tp-1',
     name: 'Sarah Chen',
     initials: 'SC',
     email: 'sarah.chen@email.com',
@@ -26,9 +27,10 @@ export const mockApplicants: Applicant[] = [
     skills: ['Energy Auditing', 'LEED Certification', 'Project Management'],
     appliedDate: '08/01/2026',
     avatarColor: avatarColors[0],
+    source: 'talent-pool',
   },
   {
-    id: '2',
+    id: 'tp-2',
     name: 'Marcus Johnson',
     initials: 'MJ',
     email: 'marcus.j@email.com',
@@ -41,9 +43,10 @@ export const mockApplicants: Applicant[] = [
     skills: ['Solar PV Design', 'Wind Energy', 'Grid Integration'],
     appliedDate: '07/01/2026',
     avatarColor: avatarColors[1],
+    source: 'talent-pool',
   },
   {
-    id: '3',
+    id: 'tp-3',
     name: 'Emily Torres',
     initials: 'ET',
     email: 'emily.torres@email.com',
@@ -56,9 +59,10 @@ export const mockApplicants: Applicant[] = [
     skills: ['Market Analysis', 'Strategic Planning', 'Data Analytics'],
     appliedDate: '06/01/2026',
     avatarColor: avatarColors[2],
+    source: 'talent-pool',
   },
   {
-    id: '4',
+    id: 'tp-4',
     name: 'David Park',
     initials: 'DP',
     email: 'david.park@email.com',
@@ -71,9 +75,10 @@ export const mockApplicants: Applicant[] = [
     skills: ['Energy Policy', 'Sustainability Consulting', 'Executive Leadership'],
     appliedDate: '05/01/2026',
     avatarColor: avatarColors[3],
+    source: 'talent-pool',
   },
   {
-    id: '5',
+    id: 'tp-5',
     name: 'Lisa Martinez',
     initials: 'LM',
     email: 'lisa.m@email.com',
@@ -86,9 +91,14 @@ export const mockApplicants: Applicant[] = [
     skills: ['Environmental Science', 'Research', 'Technical Writing'],
     appliedDate: '09/01/2026',
     avatarColor: avatarColors[4],
+    source: 'talent-pool',
   },
+];
+
+// Work With Us data (job applicants with job details)
+export const workWithUsApplicants: Applicant[] = [
   {
-    id: '6',
+    id: 'wwu-1',
     name: 'James Wilson',
     initials: 'JW',
     email: 'james.wilson@email.com',
@@ -97,13 +107,16 @@ export const mockApplicants: Applicant[] = [
     category: 'Business Consultant',
     experience: '10-15 Years',
     employmentType: 'Freelance',
-    status: 'Reviewed',
+    status: 'New Applicants',
     skills: ['Change Management', 'Process Optimization', 'Stakeholder Management'],
     appliedDate: '04/01/2026',
     avatarColor: avatarColors[5],
+    source: 'work-with-us',
+    jobId: 'JOB-2026-001',
+    jobDescription: 'Senior Business Transformation Consultant',
   },
   {
-    id: '7',
+    id: 'wwu-2',
     name: 'Anna Schmidt',
     initials: 'AS',
     email: 'anna.s@email.com',
@@ -112,13 +125,16 @@ export const mockApplicants: Applicant[] = [
     category: 'Energy Consultant',
     experience: '5-10 Years',
     employmentType: 'Freelance',
-    status: 'New Applicants',
+    status: 'Reviewed',
     skills: ['Building Energy Modeling', 'HVAC Systems', 'Cost Analysis'],
     appliedDate: '10/01/2026',
     avatarColor: avatarColors[6],
+    source: 'work-with-us',
+    jobId: 'JOB-2026-002',
+    jobDescription: 'Energy Efficiency Specialist',
   },
   {
-    id: '8',
+    id: 'wwu-3',
     name: 'Michael Brown',
     initials: 'MB',
     email: 'michael.b@email.com',
@@ -131,5 +147,47 @@ export const mockApplicants: Applicant[] = [
     skills: ['Battery Storage', 'Microgrid Design', 'Energy Trading'],
     appliedDate: '03/01/2026',
     avatarColor: avatarColors[7],
+    source: 'work-with-us',
+    jobId: 'JOB-2026-003',
+    jobDescription: 'Renewable Energy Project Manager',
+  },
+  {
+    id: 'wwu-4',
+    name: 'Rachel Green',
+    initials: 'RG',
+    email: 'rachel.g@email.com',
+    phone: '+1 555-0131',
+    location: 'Miami, FL',
+    category: 'Business Consultant',
+    experience: 'Fresher',
+    employmentType: 'Full-time',
+    status: 'New Applicants',
+    skills: ['Financial Analysis', 'Business Development', 'CRM'],
+    appliedDate: '09/15/2026',
+    avatarColor: avatarColors[0],
+    source: 'work-with-us',
+    jobId: 'JOB-2026-004',
+    jobDescription: 'Junior Business Analyst',
+  },
+  {
+    id: 'wwu-5',
+    name: 'Kevin Lee',
+    initials: 'KL',
+    email: 'kevin.lee@email.com',
+    phone: '+1 555-0132',
+    location: 'Los Angeles, CA',
+    category: 'Renewable Energy',
+    experience: '5-10 Years',
+    employmentType: 'Full-time',
+    status: 'New Applicants',
+    skills: ['Solar Installation', 'Project Coordination', 'Safety Compliance'],
+    appliedDate: '10/05/2026',
+    avatarColor: avatarColors[1],
+    source: 'work-with-us',
+    jobId: 'JOB-2026-005',
+    jobDescription: 'Solar Energy Systems Engineer',
   },
 ];
+
+// Combined for backward compatibility
+export const mockApplicants: Applicant[] = [...talentPoolApplicants, ...workWithUsApplicants];
