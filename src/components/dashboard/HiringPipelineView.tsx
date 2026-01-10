@@ -1,8 +1,9 @@
-import { ArrowLeft, Upload } from 'lucide-react';
+import { ArrowLeft, Upload, Download } from 'lucide-react';
 import { HiringPipeline, Applicant } from '@/types/applicant';
 import { Button } from '@/components/ui/button';
 import { KanbanBoard } from './KanbanBoard';
 import { toast } from 'sonner';
+import { exportApplicantsToCSV } from '@/utils/exportApplicants';
 
 interface HiringPipelineViewProps {
   pipeline: HiringPipeline;
@@ -23,6 +24,12 @@ export function HiringPipelineView({
 
   const handleUploadToDrive = () => {
     toast.success(`Uploading ${pipelineApplicants.length} candidates from "${pipeline.name}" to Google Drive`);
+  };
+
+  const handleDownload = () => {
+    const filename = `${pipeline.name.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}`;
+    exportApplicantsToCSV(pipelineApplicants, filename);
+    toast.success(`Downloaded ${pipelineApplicants.length} candidates`);
   };
 
   // Handle changes from the kanban board and merge with full applicant list
@@ -53,13 +60,22 @@ export function HiringPipelineView({
             ({pipelineApplicants.length} candidates)
           </span>
         </div>
-        <Button
-          onClick={handleUploadToDrive}
-          className="bg-primary hover:bg-primary/90"
-        >
-          <Upload className="mr-2 h-4 w-4" />
-          Upload to Google Drive
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleDownload}
+            variant="outline"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download CSV
+          </Button>
+          <Button
+            onClick={handleUploadToDrive}
+            className="bg-primary hover:bg-primary/90"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Upload to Google Drive
+          </Button>
+        </div>
       </div>
       <KanbanBoard
         applicants={pipelineApplicants}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { FileText, Plus, Eye } from 'lucide-react';
+import { Plus, Eye, Download } from 'lucide-react';
 import { Applicant, DataSource } from '@/types/applicant';
+import { exportApplicantsToCSV } from '@/utils/exportApplicants';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -59,13 +60,15 @@ export function ApplicantTable({
     }
   };
 
-  const handleBulkUpload = () => {
+  const handleBulkDownload = () => {
     if (selectedIds.size === 0) {
       toast.error('Please select at least one applicant');
       return;
     }
-    toast.success(`Uploading ${selectedIds.size} files to Google Drive`);
-    onSelectionChange(new Set());
+    const selectedApplicants = applicants.filter((a) => selectedIds.has(a.id));
+    const filename = `${dataSource === 'talent-pool' ? 'talent-pool' : 'work-with-us'}-applicants-${new Date().toISOString().split('T')[0]}`;
+    exportApplicantsToCSV(selectedApplicants, filename);
+    toast.success(`Downloaded ${selectedIds.size} applicants`);
   };
 
   const handleViewApplicant = (applicant: Applicant) => {
@@ -81,14 +84,24 @@ export function ApplicantTable({
         <p className="text-sm text-muted-foreground">
           {applicants.length} applicants
         </p>
-        <Button
-          onClick={onCreatePipeline}
-          variant="outline"
-          disabled={selectedIds.size === 0}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Create Pipeline ({selectedIds.size})
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleBulkDownload}
+            variant="outline"
+            disabled={selectedIds.size === 0}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download ({selectedIds.size})
+          </Button>
+          <Button
+            onClick={onCreatePipeline}
+            variant="outline"
+            disabled={selectedIds.size === 0}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Create Pipeline ({selectedIds.size})
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-lg border border-border bg-card overflow-hidden">
