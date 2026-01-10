@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { FilterSidebar } from '@/components/dashboard/FilterSidebar';
 import { ApplicantTable } from '@/components/dashboard/ApplicantTable';
@@ -6,16 +6,16 @@ import { DataSourceTabs, ViewTab } from '@/components/dashboard/DataSourceTabs';
 import { CreateProjectDialog } from '@/components/dashboard/CreateProjectDialog';
 import { KanbanProjectsList } from '@/components/dashboard/KanbanProjectsList';
 import { KanbanProjectView } from '@/components/dashboard/KanbanProjectView';
-import { talentPoolApplicants, workWithUsApplicants } from '@/data/applicants';
 import { FilterState, Applicant } from '@/types/applicant';
 import { useKanbanProjects } from '@/hooks/useKanbanProjects';
+import { useTalentPoolApplicants, useWorkWithUsApplicants, useUpdateApplicantStatus } from '@/hooks/useApplicants';
+import { seedDatabase } from '@/utils/seedDatabase';
 import { toast } from 'sonner';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<ViewTab>('talent-pool');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  const [talentPool, setTalentPool] = useState<Applicant[]>(talentPoolApplicants);
-  const [workWithUs, setWorkWithUs] = useState<Applicant[]>(workWithUsApplicants);
   const [talentPoolSelected, setTalentPoolSelected] = useState<Set<string>>(new Set());
   const [workWithUsSelected, setWorkWithUsSelected] = useState<Set<string>>(new Set());
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -27,7 +27,17 @@ const Index = () => {
     searchQuery: '',
   });
 
+  // Fetch data from database
+  const { data: talentPool = [], isLoading: talentPoolLoading } = useTalentPoolApplicants();
+  const { data: workWithUs = [], isLoading: workWithUsLoading } = useWorkWithUsApplicants();
+  const updateStatus = useUpdateApplicantStatus();
+
   const { projects, createProject, deleteProject, getProject } = useKanbanProjects();
+
+  // Seed database on first load if empty
+  useEffect(() => {
+    seedDatabase().catch(console.error);
+  }, []);
 
   const allApplicants = useMemo(() => [...talentPool, ...workWithUs], [talentPool, workWithUs]);
 
@@ -92,22 +102,36 @@ const Index = () => {
   };
 
   const handleApplicantsChange = (updatedApplicants: Applicant[]) => {
-    // Update both data sources based on the applicant's source field
-    const updatedTalentPool = talentPool.map((tp) => {
-      const updated = updatedApplicants.find((a) => a.id === tp.id);
-      return updated || tp;
+    // Update status in database for changed applicants
+    updatedApplicants.forEach((applicant) => {
+      const original = allApplicants.find((a) => a.id === applicant.id);
+      if (original && original.status !== applicant.status) {
+        updateStatus.mutate({
+          id: applicant.id,
+          status: applicant.status,
+          source: applicant.source,
+        });
+      }
     });
-    const updatedWorkWithUs = workWithUs.map((wwu) => {
-      const updated = updatedApplicants.find((a) => a.id === wwu.id);
-      return updated || wwu;
-    });
-    setTalentPool(updatedTalentPool);
-    setWorkWithUs(updatedWorkWithUs);
   };
 
   const currentProject = selectedProjectId ? getProject(selectedProjectId) : null;
 
+  const isLoading = talentPoolLoading || workWithUsLoading;
+
   const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      );
+    }
+
     // If viewing a specific kanban project
     if (currentProject) {
       return (
