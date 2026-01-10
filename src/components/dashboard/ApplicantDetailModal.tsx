@@ -1,4 +1,4 @@
-import { X, Mail, Phone, MapPin, Briefcase, GraduationCap, Linkedin, Globe, Calendar, Clock, DollarSign, FileText, Upload } from 'lucide-react';
+import { Mail, Phone, MapPin, Briefcase, GraduationCap, Linkedin, Globe, Calendar, Clock, DollarSign, FileText } from 'lucide-react';
 import { Applicant } from '@/types/applicant';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,10 +24,6 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
 
   const handleViewResume = () => {
     toast.info(`Opening resume for ${applicant.name}`);
-  };
-
-  const handleUploadToDrive = () => {
-    toast.success(`Uploaded ${applicant.name}'s file to Google Drive`);
   };
 
   return (
@@ -77,16 +73,10 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
                 </Badge>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleViewResume}>
-                <FileText className="mr-1.5 h-4 w-4" />
-                Resume
-              </Button>
-              <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={handleUploadToDrive}>
-                <Upload className="mr-1.5 h-4 w-4" />
-                To Drive
-              </Button>
-            </div>
+            <Button variant="outline" size="sm" onClick={handleViewResume}>
+              <FileText className="mr-1.5 h-4 w-4" />
+              View Resume
+            </Button>
           </div>
         </DialogHeader>
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, Upload, Plus, Eye } from 'lucide-react';
+import { FileText, Plus, Eye } from 'lucide-react';
 import { Applicant, DataSource } from '@/types/applicant';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
@@ -68,10 +68,6 @@ export function ApplicantTable({
     onSelectionChange(new Set());
   };
 
-  const handleViewResume = (applicant: Applicant) => {
-    toast.info(`Opening resume for ${applicant.name}`);
-  };
-
   const handleViewApplicant = (applicant: Applicant) => {
     setSelectedApplicant(applicant);
     setIsModalOpen(true);
@@ -85,24 +81,14 @@ export function ApplicantTable({
         <p className="text-sm text-muted-foreground">
           {applicants.length} applicants
         </p>
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={onCreateKanbanProject}
-            variant="outline"
-            disabled={selectedIds.size === 0}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Create Kanban Project ({selectedIds.size})
-          </Button>
-          <Button
-            onClick={handleBulkUpload}
-            className="bg-primary hover:bg-primary/90"
-            disabled={selectedIds.size === 0}
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            Bulk Upload to Drive ({selectedIds.size})
-          </Button>
-        </div>
+        <Button
+          onClick={onCreateKanbanProject}
+          variant="outline"
+          disabled={selectedIds.size === 0}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Create Kanban Project ({selectedIds.size})
+        </Button>
       </div>
 
       <div className="rounded-lg border border-border bg-card overflow-hidden">
@@ -217,26 +203,15 @@ export function ApplicantTable({
                   <span className="text-sm text-muted-foreground">{applicant.appliedDate}</span>
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleViewApplicant(applicant)}
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <Eye className="mr-1.5 h-4 w-4" />
-                      View
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleViewResume(applicant)}
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <FileText className="mr-1.5 h-4 w-4" />
-                      Resume
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleViewApplicant(applicant)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <Eye className="mr-1.5 h-4 w-4" />
+                    View
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
