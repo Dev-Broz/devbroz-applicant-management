@@ -49,7 +49,7 @@ export interface FilterState {
   searchQuery: string;
 }
 
-export interface KanbanProject {
+export interface HiringPipeline {
   id: string;
   name: string;
   createdAt: string;

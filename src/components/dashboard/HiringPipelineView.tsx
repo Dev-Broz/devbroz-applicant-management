@@ -1,34 +1,34 @@
 import { ArrowLeft, Upload } from 'lucide-react';
-import { KanbanProject, Applicant } from '@/types/applicant';
+import { HiringPipeline, Applicant } from '@/types/applicant';
 import { Button } from '@/components/ui/button';
 import { KanbanBoard } from './KanbanBoard';
 import { toast } from 'sonner';
 
-interface KanbanProjectViewProps {
-  project: KanbanProject;
+interface HiringPipelineViewProps {
+  pipeline: HiringPipeline;
   applicants: Applicant[];
   onBack: () => void;
   onApplicantsChange: (applicants: Applicant[]) => void;
 }
 
-export function KanbanProjectView({
-  project,
+export function HiringPipelineView({
+  pipeline,
   applicants,
   onBack,
   onApplicantsChange,
-}: KanbanProjectViewProps) {
-  const projectApplicants = applicants.filter((a) =>
-    project.applicantIds.includes(a.id)
+}: HiringPipelineViewProps) {
+  const pipelineApplicants = applicants.filter((a) =>
+    pipeline.applicantIds.includes(a.id)
   );
 
   const handleUploadToDrive = () => {
-    toast.success(`Uploading ${projectApplicants.length} candidates from "${project.name}" to Google Drive`);
+    toast.success(`Uploading ${pipelineApplicants.length} candidates from "${pipeline.name}" to Google Drive`);
   };
 
   // Handle changes from the kanban board and merge with full applicant list
-  const handleKanbanChange = (updatedProjectApplicants: Applicant[]) => {
+  const handleKanbanChange = (updatedPipelineApplicants: Applicant[]) => {
     // Create a map of updated applicants for quick lookup
-    const updatedMap = new Map(updatedProjectApplicants.map(a => [a.id, a]));
+    const updatedMap = new Map(updatedPipelineApplicants.map(a => [a.id, a]));
     
     // Merge updates with the full applicant list
     const mergedApplicants = applicants.map(applicant => {
@@ -45,12 +45,12 @@ export function KanbanProjectView({
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" onClick={onBack} className="gap-2">
             <ArrowLeft className="h-4 w-4" />
-            Back to Projects
+            Back to Pipelines
           </Button>
           <div className="h-6 w-px bg-border" />
-          <h2 className="text-xl font-semibold text-foreground">{project.name}</h2>
+          <h2 className="text-xl font-semibold text-foreground">{pipeline.name}</h2>
           <span className="text-sm text-muted-foreground">
-            ({projectApplicants.length} candidates)
+            ({pipelineApplicants.length} candidates)
           </span>
         </div>
         <Button
@@ -62,7 +62,7 @@ export function KanbanProjectView({
         </Button>
       </div>
       <KanbanBoard
-        applicants={projectApplicants}
+        applicants={pipelineApplicants}
         onApplicantsChange={handleKanbanChange}
       />
     </div>

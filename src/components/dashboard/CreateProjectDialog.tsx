@@ -39,18 +39,18 @@ export function CreateProjectDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create Kanban Project</DialogTitle>
+          <DialogTitle>Create Hiring Pipeline</DialogTitle>
           <DialogDescription>
-            Create a new kanban project with {selectedCount} selected candidate{selectedCount !== 1 ? 's' : ''}.
+            Create a new hiring pipeline with {selectedCount} selected candidate{selectedCount !== 1 ? 's' : ''}.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="project-name">Project Name</Label>
+              <Label htmlFor="pipeline-name">Pipeline Name</Label>
               <Input
-                id="project-name"
-                placeholder="e.g., Q1 2026 Hiring Pipeline"
+                id="pipeline-name"
+                placeholder="e.g., Q1 2026 Engineering Hires"
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
                 autoFocus
@@ -62,7 +62,7 @@ export function CreateProjectDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={!projectName.trim()}>
-              Create Project
+              Create Pipeline
             </Button>
           </DialogFooter>
         </form>

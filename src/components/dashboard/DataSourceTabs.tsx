@@ -1,16 +1,16 @@
-import { Users, Briefcase, Kanban } from 'lucide-react';
+import { Users, Briefcase, GitBranch } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
-export type ViewTab = 'talent-pool' | 'work-with-us' | 'kanban-projects';
+export type ViewTab = 'talent-pool' | 'work-with-us' | 'hiring-pipelines';
 
 interface DataSourceTabsProps {
   activeTab: ViewTab;
   onTabChange: (tab: ViewTab) => void;
-  kanbanProjectCount: number;
+  pipelineCount: number;
 }
 
-export function DataSourceTabs({ activeTab, onTabChange, kanbanProjectCount }: DataSourceTabsProps) {
+export function DataSourceTabs({ activeTab, onTabChange, pipelineCount }: DataSourceTabsProps) {
   return (
     <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as ViewTab)} className="w-full">
       <TabsList className="grid w-full grid-cols-3 bg-muted/50 p-1 h-12">
@@ -35,17 +35,17 @@ export function DataSourceTabs({ activeTab, onTabChange, kanbanProjectCount }: D
           Work With Us
         </TabsTrigger>
         <TabsTrigger
-          value="kanban-projects"
+          value="hiring-pipelines"
           className={cn(
             'flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-sm',
             'text-sm font-medium'
           )}
         >
-          <Kanban className="h-4 w-4" />
-          Kanban Projects
-          {kanbanProjectCount > 0 && (
+          <GitBranch className="h-4 w-4" />
+          Hiring Pipelines
+          {pipelineCount > 0 && (
             <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-              {kanbanProjectCount}
+              {pipelineCount}
             </span>
           )}
         </TabsTrigger>
