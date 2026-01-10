@@ -145,14 +145,37 @@ export const useUpdateApplicantStatus = () => {
 
       if (error) throw error;
     },
-    onSuccess: (_, { source }) => {
-      queryClient.invalidateQueries({
-        queryKey: [
-          source === 'talent-pool'
-            ? 'talent-pool-applicants'
-            : 'work-with-us-applicants',
-        ],
+
+    // Optimistic update: prevents the card snapping back while the DB update + refetch happens.
+    onMutate: async ({ id, status, source }) => {
+      const key = [
+        source === 'talent-pool'
+          ? 'talent-pool-applicants'
+          : 'work-with-us-applicants',
+      ] as const;
+
+      await queryClient.cancelQueries({ queryKey: key });
+
+      const previous = queryClient.getQueryData<Applicant[]>(key);
+
+      queryClient.setQueryData<Applicant[]>(key, (old) => {
+        if (!old) return old;
+        return old.map((a) => (a.id === id ? { ...a, status: status as ApplicantStatus } : a));
       });
+
+      return { previous, key };
+    },
+
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous && ctx.key) {
+        queryClient.setQueryData(ctx.key, ctx.previous);
+      }
+    },
+
+    onSettled: (_data, _err, vars, ctx) => {
+      // Still refetch to ensure we're in sync with the database.
+      const key = ctx?.key ?? [vars.source === 'talent-pool' ? 'talent-pool-applicants' : 'work-with-us-applicants'];
+      queryClient.invalidateQueries({ queryKey: key });
     },
   });
 };
