@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { GripVertical, Mail, MapPin, FileText, Upload, Eye } from 'lucide-react';
+import { GripVertical, Mail, MapPin, Eye } from 'lucide-react';
 import { Applicant } from '@/types/applicant';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
 import { ApplicantDetailModal } from './ApplicantDetailModal';
 
 interface ApplicantCardProps {
@@ -14,14 +13,6 @@ interface ApplicantCardProps {
 
 export function ApplicantCard({ applicant, isDragging }: ApplicantCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleViewResume = () => {
-    toast.info(`Opening resume for ${applicant.name}`);
-  };
-
-  const handleUploadToDrive = () => {
-    toast.success(`Uploaded ${applicant.name}'s file to Google Drive`);
-  };
 
   return (
     <>
@@ -88,23 +79,15 @@ export function ApplicantCard({ applicant, isDragging }: ApplicantCardProps) {
         ))}
       </div>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4">
         <Button
           variant="outline"
           size="sm"
-          className="flex-1 h-8 text-xs"
+          className="w-full h-8 text-xs"
           onClick={() => setIsModalOpen(true)}
         >
           <Eye className="mr-1.5 h-3.5 w-3.5" />
-          View
-        </Button>
-        <Button
-          size="sm"
-          className="flex-1 h-8 text-xs bg-primary hover:bg-primary/90"
-          onClick={handleUploadToDrive}
-        >
-          <Upload className="mr-1.5 h-3.5 w-3.5" />
-          To Drive
+          View Details
         </Button>
       </div>
 
