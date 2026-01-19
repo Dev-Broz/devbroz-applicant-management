@@ -13,6 +13,7 @@ import {
 interface DashboardHeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  onSearchSubmit?: () => void;
   isSemanticSearch?: boolean;
   isSearching?: boolean;
   onChatOpen?: () => void;
@@ -28,6 +29,7 @@ const searchSteps = [
 export function DashboardHeader({
   searchQuery,
   onSearchChange,
+  onSearchSubmit,
   isSemanticSearch = false,
   isSearching = false,
   onChatOpen,
@@ -62,9 +64,14 @@ export function DashboardHeader({
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search applicants or try 'solar project engineer'..."
+            placeholder="Search applicants or try 'solar project engineer'... (press Enter)"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && onSearchSubmit) {
+                onSearchSubmit();
+              }
+            }}
             className={cn(
               "pl-10 pr-10 bg-background border-border transition-all duration-300",
               isSemanticSearch && "border-violet-500/50 ring-2 ring-violet-500/20 shadow-[0_0_15px_rgba(139,92,246,0.15)]"
