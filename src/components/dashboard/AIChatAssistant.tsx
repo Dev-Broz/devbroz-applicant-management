@@ -65,7 +65,7 @@ export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssist
     if (isTyping && thinkingStep < thinkingSteps.length - 1) {
       const timer = setTimeout(() => {
         setThinkingStep(prev => prev + 1);
-      }, 600);
+      }, 900);
       return () => clearTimeout(timer);
     }
   }, [isTyping, thinkingStep]);
@@ -85,8 +85,8 @@ export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssist
     setIsTyping(true);
     setThinkingStep(0);
 
-    // Simulate AI processing with thinking animation
-    await new Promise(resolve => setTimeout(resolve, 1800));
+    // Simulate AI processing with thinking animation (2.7s total for all steps)
+    await new Promise(resolve => setTimeout(resolve, 2700));
 
     const response = generateChatResponse(messageText, applicants);
     

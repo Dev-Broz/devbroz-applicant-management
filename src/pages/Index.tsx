@@ -56,7 +56,7 @@ const Index = () => {
       const timer = setTimeout(() => {
         setDebouncedSearchQuery(query);
         setIsSemanticSearching(false);
-      }, 800);
+      }, 2500);
       return () => clearTimeout(timer);
     } else {
       setDebouncedSearchQuery(query);
