@@ -94,27 +94,13 @@ export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssist
     setIsStreaming(true);
     setDisplayedContent('');
 
-    // Simulate LLM-like streaming with variable speed and natural pauses
+    // Stream like ChatGPT: small token-ish bursts, variable cadence, punctuation/newline pauses
     const fullMessage = response.message;
-    const words = fullMessage.split(' ');
-    let currentWordIndex = 0;
-    
-    const streamNextChunk = () => {
-      if (currentWordIndex < words.length) {
-        // Add 1-3 words at a time for natural chunking
-        const wordsToAdd = Math.min(1 + Math.floor(Math.random() * 2), words.length - currentWordIndex);
-        currentWordIndex += wordsToAdd;
-        setDisplayedContent(words.slice(0, currentWordIndex).join(' '));
-        
-        // Variable delay: faster for short words, slower for longer/punctuation
-        const lastWord = words[currentWordIndex - 1] || '';
-        const hasPunctuation = /[.,!?:;]$/.test(lastWord);
-        const baseDelay = 30 + Math.random() * 40; // 30-70ms base
-        const punctuationPause = hasPunctuation ? 150 + Math.random() * 100 : 0; // Extra pause for punctuation
-        const lengthDelay = Math.min(lastWord.length * 5, 30); // Longer words = slightly longer
-        
-        setTimeout(streamNextChunk, baseDelay + punctuationPause + lengthDelay);
-      } else {
+    let currentIndex = 0;
+    let started = false;
+
+    const streamNext = () => {
+      if (currentIndex >= fullMessage.length) {
         setIsStreaming(false);
         const assistantMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -123,10 +109,53 @@ export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssist
         };
         setMessages(prev => [...prev, assistantMessage]);
         setDisplayedContent('');
+        return;
       }
+
+      // Initial tiny delay before the first token (feels more natural)
+      if (!started) {
+        started = true;
+        setTimeout(streamNext, 120 + Math.random() * 180);
+        return;
+      }
+
+      const remaining = fullMessage.length - currentIndex;
+      // Token-ish chunk sizes (mostly small, occasionally larger)
+      const chunkSize = Math.min(
+        remaining,
+        Math.random() < 0.12 ? 6 : Math.random() < 0.35 ? 3 : 1
+      );
+
+      currentIndex += chunkSize;
+      const nextText = fullMessage.slice(0, currentIndex);
+      setDisplayedContent(nextText);
+
+      const lastChar = nextText[nextText.length - 1] ?? '';
+      const lastTwo = nextText.slice(-2);
+
+      const isNewline = lastChar === '\n';
+      const isSentencePunct = /[.!?]/.test(lastChar);
+      const isClausePunct = /[,;:]/.test(lastChar);
+      const isEllipsis = lastTwo === '..' || nextText.slice(-3) === '...';
+
+      // Base cadence similar to ChatGPT
+      let delay = 18 + Math.random() * 42; // 18-60ms
+
+      // Natural pauses
+      if (isClausePunct) delay += 90 + Math.random() * 80;
+      if (isSentencePunct) delay += 160 + Math.random() * 140;
+      if (isEllipsis) delay += 120 + Math.random() * 120;
+      if (isNewline) delay += 220 + Math.random() * 180;
+
+      // Occasional micro-think pauses during long responses
+      if (fullMessage.length > 240 && Math.random() < 0.03) {
+        delay += 220 + Math.random() * 260;
+      }
+
+      setTimeout(streamNext, delay);
     };
-    
-    streamNextChunk();
+
+    streamNext();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
