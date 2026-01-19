@@ -1,4 +1,4 @@
-import { ArrowLeft, Upload, Download } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import { HiringPipeline, Applicant } from '@/types/applicant';
 import { Button } from '@/components/ui/button';
 import { KanbanBoard } from './KanbanBoard';
@@ -22,9 +22,6 @@ export function HiringPipelineView({
     pipeline.applicantIds.includes(a.id)
   );
 
-  const handleUploadToDrive = () => {
-    toast.success(`Uploading ${pipelineApplicants.length} candidates from "${pipeline.name}" to Google Drive`);
-  };
 
   const handleDownload = () => {
     const filename = `${pipeline.name.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}`;
@@ -60,22 +57,13 @@ export function HiringPipelineView({
             ({pipelineApplicants.length} candidates)
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={handleDownload}
-            variant="outline"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Download
-          </Button>
-          <Button
-            onClick={handleUploadToDrive}
-            className="bg-primary hover:bg-primary/90"
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            Upload to Google Drive
-          </Button>
-        </div>
+        <Button
+          onClick={handleDownload}
+          className="bg-primary hover:bg-primary/90"
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Download
+        </Button>
       </div>
       <KanbanBoard
         applicants={pipelineApplicants}
