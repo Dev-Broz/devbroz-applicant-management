@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Eye, Download } from 'lucide-react';
+import { Plus, Eye, Download, Sparkles } from 'lucide-react';
 import { Applicant, DataSource } from '@/types/applicant';
 import { exportApplicantsToCSV } from '@/utils/exportApplicants';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -16,6 +16,7 @@ import {
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { ApplicantDetailModal } from './ApplicantDetailModal';
+import { AICandidateTooltip } from './AICandidateTooltip';
 
 interface ApplicantTableProps {
   applicants: Applicant[];
@@ -23,6 +24,7 @@ interface ApplicantTableProps {
   selectedIds: Set<string>;
   onSelectionChange: (ids: Set<string>) => void;
   onCreatePipeline: () => void;
+  onAIShortlist?: () => void;
 }
 
 const statusStyles: Record<string, string> = {
@@ -38,6 +40,7 @@ export function ApplicantTable({
   selectedIds,
   onSelectionChange,
   onCreatePipeline,
+  onAIShortlist,
 }: ApplicantTableProps) {
   const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,6 +88,16 @@ export function ApplicantTable({
           {applicants.length} applicants
         </p>
         <div className="flex items-center gap-2">
+          {onAIShortlist && (
+            <Button
+              onClick={onAIShortlist}
+              variant="outline"
+              className="border-violet-500/30 text-violet-600 hover:bg-violet-500/10 hover:text-violet-700"
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              AI Shortlist
+            </Button>
+          )}
           <Button
             onClick={handleBulkDownload}
             variant="outline"
@@ -148,20 +161,22 @@ export function ApplicantTable({
                   />
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        'flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-primary-foreground',
-                        applicant.avatarColor
-                      )}
-                    >
-                      {applicant.initials}
+                  <AICandidateTooltip applicant={applicant}>
+                    <div className="flex items-center gap-3 cursor-pointer">
+                      <div
+                        className={cn(
+                          'flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-primary-foreground',
+                          applicant.avatarColor
+                        )}
+                      >
+                        {applicant.initials}
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground hover:text-primary transition-colors">{applicant.name}</p>
+                        <p className="text-xs text-muted-foreground">{applicant.location}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-foreground">{applicant.name}</p>
-                      <p className="text-xs text-muted-foreground">{applicant.location}</p>
-                    </div>
-                  </div>
+                  </AICandidateTooltip>
                 </TableCell>
                 <TableCell>
                   <div className="space-y-0.5">

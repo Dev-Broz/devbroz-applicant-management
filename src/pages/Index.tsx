@@ -6,10 +6,13 @@ import { DataSourceTabs, ViewTab } from '@/components/dashboard/DataSourceTabs';
 import { CreateProjectDialog } from '@/components/dashboard/CreateProjectDialog';
 import { HiringPipelinesList } from '@/components/dashboard/HiringPipelinesList';
 import { HiringPipelineView } from '@/components/dashboard/HiringPipelineView';
+import { AIChatAssistant } from '@/components/dashboard/AIChatAssistant';
+import { AIShortlistDialog } from '@/components/dashboard/AIShortlistDialog';
 import { FilterState, Applicant } from '@/types/applicant';
 import { useHiringPipelines } from '@/hooks/useHiringPipelines';
 import { useTalentPoolApplicants, useWorkWithUsApplicants, useUpdateApplicantStatus } from '@/hooks/useApplicants';
 import { seedDatabase } from '@/utils/seedDatabase';
+import { isSemanticQuery, getSemanticMatches } from '@/utils/aiDemoData';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -21,6 +24,9 @@ const Index = () => {
   const [workWithUsSelected, setWorkWithUsSelected] = useState<Set<string>>(new Set());
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createDialogSource, setCreateDialogSource] = useState<'talent-pool' | 'work-with-us'>('talent-pool');
+  const [chatOpen, setChatOpen] = useState(false);
+  const [aiShortlistOpen, setAIShortlistOpen] = useState(false);
+  const [aiShortlistSource, setAIShortlistSource] = useState<'talent-pool' | 'work-with-us'>('talent-pool');
   const [filters, setFilters] = useState<FilterState>({
     categories: [],
     experienceLevels: [],
@@ -42,17 +48,35 @@ const Index = () => {
 
   const allApplicants = useMemo(() => [...talentPool, ...workWithUs], [talentPool, workWithUs]);
 
+  // Check if current search is semantic
+  const isSemanticSearchActive = useMemo(() => {
+    return filters.searchQuery.length > 2 && isSemanticQuery(filters.searchQuery);
+  }, [filters.searchQuery]);
+
   const filterApplicants = (applicants: Applicant[]) => {
-    return applicants.filter((applicant) => {
-      if (filters.searchQuery) {
-        const query = filters.searchQuery.toLowerCase();
-        const matchesSearch =
+    let filtered = applicants;
+    
+    // If semantic search is active, use AI matching
+    if (isSemanticSearchActive) {
+      const semanticMatches = getSemanticMatches(filters.searchQuery, applicants);
+      if (semanticMatches.length > 0) {
+        filtered = semanticMatches;
+      }
+    } else if (filters.searchQuery) {
+      // Regular text search
+      const query = filters.searchQuery.toLowerCase();
+      filtered = applicants.filter((applicant) => {
+        return (
           applicant.name.toLowerCase().includes(query) ||
           applicant.email.toLowerCase().includes(query) ||
           applicant.location.toLowerCase().includes(query) ||
-          applicant.skills.some((skill) => skill.toLowerCase().includes(query));
-        if (!matchesSearch) return false;
-      }
+          applicant.skills.some((skill) => skill.toLowerCase().includes(query))
+        );
+      });
+    }
+    
+    // Apply other filters
+    return filtered.filter((applicant) => {
       if (filters.categories.length > 0) {
         if (!filters.categories.includes(applicant.category)) return false;
       }
@@ -66,8 +90,8 @@ const Index = () => {
     });
   };
 
-  const filteredTalentPool = useMemo(() => filterApplicants(talentPool), [talentPool, filters]);
-  const filteredWorkWithUs = useMemo(() => filterApplicants(workWithUs), [workWithUs, filters]);
+  const filteredTalentPool = useMemo(() => filterApplicants(talentPool), [talentPool, filters, isSemanticSearchActive]);
+  const filteredWorkWithUs = useMemo(() => filterApplicants(workWithUs), [workWithUs, filters, isSemanticSearchActive]);
 
   const handleSearchChange = (query: string) => {
     setFilters((prev) => ({ ...prev, searchQuery: query }));
@@ -96,6 +120,19 @@ const Index = () => {
 
   const handleSelectPipeline = (pipelineId: string) => {
     setSelectedPipelineId(pipelineId);
+  };
+
+  const handleAIShortlist = (source: 'talent-pool' | 'work-with-us') => {
+    setAIShortlistSource(source);
+    setAIShortlistOpen(true);
+  };
+
+  const handleAIShortlistCreatePipeline = (selectedIds: string[]) => {
+    if (selectedIds.length === 0) return;
+    const pipelineName = `AI Shortlist - ${new Date().toLocaleDateString()}`;
+    createPipeline(pipelineName, selectedIds);
+    toast.success(`Created pipeline "${pipelineName}" with ${selectedIds.length} AI-matched candidates`);
+    setActiveTab('hiring-pipelines');
   };
 
   const handleBackFromPipeline = () => {
@@ -155,6 +192,7 @@ const Index = () => {
             selectedIds={talentPoolSelected}
             onSelectionChange={setTalentPoolSelected}
             onCreatePipeline={() => handleCreatePipeline('talent-pool')}
+            onAIShortlist={() => handleAIShortlist('talent-pool')}
           />
         );
       case 'work-with-us':
@@ -165,6 +203,7 @@ const Index = () => {
             selectedIds={workWithUsSelected}
             onSelectionChange={setWorkWithUsSelected}
             onCreatePipeline={() => handleCreatePipeline('work-with-us')}
+            onAIShortlist={() => handleAIShortlist('work-with-us')}
           />
         );
       case 'hiring-pipelines':
@@ -183,6 +222,8 @@ const Index = () => {
       <DashboardHeader
         searchQuery={filters.searchQuery}
         onSearchChange={handleSearchChange}
+        isSemanticSearch={isSemanticSearchActive}
+        onChatOpen={() => setChatOpen(true)}
       />
 
       <div className="flex flex-1 overflow-hidden">
@@ -211,6 +252,19 @@ const Index = () => {
             : workWithUsSelected.size
         }
         onConfirm={handleConfirmCreatePipeline}
+      />
+
+      <AIChatAssistant
+        open={chatOpen}
+        onOpenChange={setChatOpen}
+        applicants={allApplicants}
+      />
+
+      <AIShortlistDialog
+        open={aiShortlistOpen}
+        onOpenChange={setAIShortlistOpen}
+        applicants={aiShortlistSource === 'talent-pool' ? talentPool : workWithUs}
+        onCreatePipeline={handleAIShortlistCreatePipeline}
       />
     </div>
   );
