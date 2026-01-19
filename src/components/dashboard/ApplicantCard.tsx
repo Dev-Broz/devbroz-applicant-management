@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { ApplicantDetailModal } from './ApplicantDetailModal';
+import { AICandidateTooltip } from './AICandidateTooltip';
 
 interface ApplicantCardProps {
   applicant: Applicant;
@@ -35,7 +36,9 @@ export const ApplicantCard = memo(function ApplicantCard({ applicant, isDragging
           </div>
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-card-foreground truncate">{applicant.name}</h3>
+          <AICandidateTooltip applicant={applicant}>
+            <h3 className="font-semibold text-card-foreground truncate cursor-pointer hover:text-primary transition-colors">{applicant.name}</h3>
+          </AICandidateTooltip>
           <p className="text-sm text-muted-foreground">{applicant.category}</p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             <Badge
