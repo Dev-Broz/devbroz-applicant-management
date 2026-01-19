@@ -63,6 +63,13 @@ const Index = () => {
     }
   };
 
+  // Clear submitted search when input is cleared
+  useEffect(() => {
+    if (!filters.searchQuery) {
+      setSubmittedSearchQuery('');
+    }
+  }, [filters.searchQuery]);
+
   const allApplicants = useMemo(() => [...talentPool, ...workWithUs], [talentPool, workWithUs]);
 
   // Check if current search is semantic (based on submitted query)
