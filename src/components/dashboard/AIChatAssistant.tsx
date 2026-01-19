@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Send, Sparkles, Loader2 } from 'lucide-react';
+import { X, Send, Sparkles, Loader2, Database, BarChart3, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -26,6 +26,12 @@ const suggestedQuestions = [
   "How many shortlisted candidates?",
 ];
 
+const thinkingSteps = [
+  { icon: Database, text: "Scanning applicant database..." },
+  { icon: BarChart3, text: "Analyzing patterns..." },
+  { icon: Brain, text: "Generating insights..." },
+];
+
 export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -36,6 +42,9 @@ export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssist
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [thinkingStep, setThinkingStep] = useState(0);
+  const [displayedContent, setDisplayedContent] = useState('');
+  const [isStreaming, setIsStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -49,7 +58,17 @@ export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssist
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, displayedContent, thinkingStep]);
+
+  // Animate through thinking steps
+  useEffect(() => {
+    if (isTyping && thinkingStep < thinkingSteps.length - 1) {
+      const timer = setTimeout(() => {
+        setThinkingStep(prev => prev + 1);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [isTyping, thinkingStep]);
 
   const handleSend = async (question?: string) => {
     const messageText = question || input.trim();
@@ -64,20 +83,38 @@ export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssist
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsTyping(true);
+    setThinkingStep(0);
 
-    // Simulate AI processing delay
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Simulate AI processing with thinking animation
+    await new Promise(resolve => setTimeout(resolve, 1800));
 
     const response = generateChatResponse(messageText, applicants);
     
-    const assistantMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      role: 'assistant',
-      content: response.message
-    };
-
     setIsTyping(false);
-    setMessages(prev => [...prev, assistantMessage]);
+    setIsStreaming(true);
+    setDisplayedContent('');
+
+    // Simulate streaming text effect
+    const fullMessage = response.message;
+    let currentIndex = 0;
+    
+    const streamInterval = setInterval(() => {
+      if (currentIndex < fullMessage.length) {
+        const charsToAdd = Math.min(3, fullMessage.length - currentIndex);
+        setDisplayedContent(fullMessage.slice(0, currentIndex + charsToAdd));
+        currentIndex += charsToAdd;
+      } else {
+        clearInterval(streamInterval);
+        setIsStreaming(false);
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: fullMessage
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+        setDisplayedContent('');
+      }
+    }, 20);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -88,6 +125,8 @@ export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssist
   };
 
   if (!open) return null;
+
+  const CurrentThinkingIcon = thinkingSteps[thinkingStep]?.icon || Brain;
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-96 rounded-xl border border-border bg-card shadow-xl animate-in slide-in-from-bottom-4 fade-in duration-300">
@@ -114,7 +153,7 @@ export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssist
             <div
               key={message.id}
               className={cn(
-                'flex',
+                'flex animate-fade-in',
                 message.role === 'user' ? 'justify-end' : 'justify-start'
               )}
             >
@@ -130,11 +169,57 @@ export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssist
               </div>
             </div>
           ))}
+          
+          {/* Thinking animation */}
           {isTyping && (
-            <div className="flex justify-start">
-              <div className="flex items-center gap-2 rounded-xl bg-muted px-4 py-2.5 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>AI is thinking...</span>
+            <div className="flex justify-start animate-fade-in">
+              <div className="max-w-[85%] rounded-xl bg-muted px-4 py-3 text-sm">
+                <div className="flex flex-col gap-2">
+                  {thinkingSteps.map((step, index) => {
+                    const StepIcon = step.icon;
+                    const isActive = index === thinkingStep;
+                    const isComplete = index < thinkingStep;
+                    
+                    return (
+                      <div 
+                        key={index}
+                        className={cn(
+                          "flex items-center gap-2 transition-all duration-300",
+                          isActive ? "text-violet-500" : isComplete ? "text-muted-foreground" : "text-muted-foreground/40"
+                        )}
+                      >
+                        <div className={cn(
+                          "flex h-5 w-5 items-center justify-center",
+                          isActive && "animate-pulse"
+                        )}>
+                          {isActive ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <StepIcon className={cn("h-4 w-4", isComplete && "text-green-500")} />
+                          )}
+                        </div>
+                        <span className={cn(
+                          "text-xs transition-all duration-200",
+                          isActive && "font-medium"
+                        )}>
+                          {step.text}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Streaming text */}
+          {isStreaming && displayedContent && (
+            <div className="flex justify-start animate-fade-in">
+              <div className="max-w-[85%] rounded-xl bg-muted px-4 py-2.5 text-sm text-foreground">
+                <p className="whitespace-pre-wrap">
+                  {displayedContent}
+                  <span className="inline-block w-1.5 h-4 ml-0.5 bg-violet-500 animate-pulse" />
+                </p>
               </div>
             </div>
           )}
@@ -169,12 +254,12 @@ export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssist
             onKeyDown={handleKeyDown}
             placeholder="Ask about applicants..."
             className="flex-1"
-            disabled={isTyping}
+            disabled={isTyping || isStreaming}
           />
           <Button 
             size="icon" 
             onClick={() => handleSend()}
-            disabled={!input.trim() || isTyping}
+            disabled={!input.trim() || isTyping || isStreaming}
             className="bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
           >
             <Send className="h-4 w-4" />
