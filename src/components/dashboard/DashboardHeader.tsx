@@ -1,4 +1,5 @@
-import { Search, Bell, Settings, Sparkles, MessageCircle, Database, Brain, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Bell, Settings, Sparkles, MessageCircle, Database, Brain, Loader2, FileSearch, Users, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,13 @@ interface DashboardHeaderProps {
   onChatOpen?: () => void;
 }
 
+const searchSteps = [
+  { icon: Database, text: "Scanning database..." },
+  { icon: FileSearch, text: "Parsing query..." },
+  { icon: Users, text: "Matching profiles..." },
+  { icon: Brain, text: "Ranking results..." },
+];
+
 export function DashboardHeader({
   searchQuery,
   onSearchChange,
@@ -24,6 +32,22 @@ export function DashboardHeader({
   isSearching = false,
   onChatOpen,
 }: DashboardHeaderProps) {
+  const [searchStep, setSearchStep] = useState(0);
+
+  // Animate through search steps
+  useEffect(() => {
+    if (!isSearching) {
+      setSearchStep(0);
+      return;
+    }
+    
+    if (searchStep < searchSteps.length - 1) {
+      const timer = setTimeout(() => {
+        setSearchStep(prev => prev + 1);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [isSearching, searchStep]);
   return (
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-6">
       <div className="flex items-center gap-3">
@@ -72,17 +96,61 @@ export function DashboardHeader({
           )}
         </div>
         
-        {/* Semantic Search Progress Bar */}
+        {/* Semantic Search Progress Panel */}
         {isSemanticSearch && isSearching && (
-          <div className="absolute left-0 right-0 mt-1 mx-auto max-w-md px-8">
-            <div className="flex items-center gap-2 rounded-lg bg-muted/80 backdrop-blur-sm px-3 py-2 text-xs animate-fade-in">
-              <div className="flex items-center gap-1.5">
-                <Database className="h-3 w-3 text-violet-500 animate-pulse" />
-                <span className="text-muted-foreground">Analyzing resumes...</span>
+          <div className="absolute left-0 right-0 mt-1 mx-auto max-w-md px-8 z-20">
+            <div className="rounded-lg border border-violet-500/30 bg-card/95 backdrop-blur-sm px-4 py-3 shadow-lg animate-fade-in">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-foreground">AI Semantic Search</span>
+                <span className="text-xs text-muted-foreground">
+                  {searchStep + 1}/{searchSteps.length}
+                </span>
               </div>
-              <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-violet-500 to-purple-600 rounded-full animate-[shimmer_1s_ease-in-out_infinite]" 
-                     style={{ width: '60%', animation: 'shimmer 1.5s ease-in-out infinite' }} />
+              
+              {/* Progress bar */}
+              <div className="h-1 bg-muted rounded-full overflow-hidden mb-3">
+                <div 
+                  className="h-full bg-gradient-to-r from-violet-500 to-purple-600 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${((searchStep + 1) / searchSteps.length) * 100}%` }}
+                />
+              </div>
+              
+              {/* Step indicators */}
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                {searchSteps.map((step, index) => {
+                  const StepIcon = step.icon;
+                  const isActive = index === searchStep;
+                  const isComplete = index < searchStep;
+                  
+                  return (
+                    <div 
+                      key={index}
+                      className={cn(
+                        "flex items-center gap-1.5 transition-all duration-300",
+                        isActive ? "text-violet-500" : isComplete ? "text-muted-foreground" : "text-muted-foreground/40"
+                      )}
+                    >
+                      <div className={cn(
+                        "flex h-4 w-4 items-center justify-center",
+                        isActive && "animate-pulse"
+                      )}>
+                        {isActive ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : isComplete ? (
+                          <Check className="h-3 w-3 text-green-500" />
+                        ) : (
+                          <StepIcon className="h-3 w-3" />
+                        )}
+                      </div>
+                      <span className={cn(
+                        "text-xs transition-all duration-200",
+                        isActive && "font-medium"
+                      )}>
+                        {step.text}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

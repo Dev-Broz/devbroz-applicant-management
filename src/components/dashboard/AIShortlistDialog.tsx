@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Sparkles, Loader2, Check, UserPlus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Sparkles, Loader2, Check, UserPlus, Database, FileSearch, Users, Brain } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -16,6 +16,13 @@ import { Applicant } from '@/types/applicant';
 import { getAIShortlistMatches, ShortlistMatch } from '@/utils/aiDemoData';
 import { cn } from '@/lib/utils';
 
+const analysisSteps = [
+  { icon: Database, text: "Scanning applicant database...", duration: 1200 },
+  { icon: FileSearch, text: "Parsing job requirements...", duration: 1000 },
+  { icon: Users, text: "Matching candidate profiles...", duration: 1400 },
+  { icon: Brain, text: "Ranking by relevance...", duration: 900 },
+];
+
 interface AIShortlistDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -31,19 +38,34 @@ export function AIShortlistDialog({
 }: AIShortlistDialogProps) {
   const [jobDescription, setJobDescription] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
   const [matches, setMatches] = useState<ShortlistMatch[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
+
+  // Progress through analysis steps
+  useEffect(() => {
+    if (!isAnalyzing) return;
+    
+    if (currentStep < analysisSteps.length - 1) {
+      const timer = setTimeout(() => {
+        setCurrentStep(prev => prev + 1);
+      }, analysisSteps[currentStep].duration);
+      return () => clearTimeout(timer);
+    }
+  }, [isAnalyzing, currentStep]);
 
   const handleAnalyze = async () => {
     if (!jobDescription.trim()) return;
     
     setIsAnalyzing(true);
+    setCurrentStep(0);
     setMatches([]);
     setSelectedIds(new Set());
     
-    // Simulate AI processing
-    await new Promise(resolve => setTimeout(resolve, 1200));
+    // Total animation time: sum of all step durations + buffer
+    const totalTime = analysisSteps.reduce((acc, step) => acc + step.duration, 0) + 400;
+    await new Promise(resolve => setTimeout(resolve, totalTime));
     
     const results = getAIShortlistMatches(jobDescription, applicants);
     setMatches(results);
@@ -115,23 +137,71 @@ export function AIShortlistDialog({
           </div>
 
           {/* Analyze Button */}
-          <Button
-            onClick={handleAnalyze}
-            disabled={!jobDescription.trim() || isAnalyzing}
-            className="w-full bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
-          >
-            {isAnalyzing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Analyzing candidates...
-              </>
-            ) : (
-              <>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Analyze & Find Matches
-              </>
-            )}
-          </Button>
+          {!isAnalyzing ? (
+            <Button
+              onClick={handleAnalyze}
+              disabled={!jobDescription.trim()}
+              className="w-full bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Analyze & Find Matches
+            </Button>
+          ) : (
+            <div className="w-full rounded-lg border border-violet-500/30 bg-violet-500/5 p-4 space-y-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-foreground">Analyzing candidates...</span>
+                <span className="text-xs text-muted-foreground">
+                  {currentStep + 1}/{analysisSteps.length}
+                </span>
+              </div>
+              
+              {/* Progress bar */}
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-violet-500 to-purple-600 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${((currentStep + 1) / analysisSteps.length) * 100}%` }}
+                />
+              </div>
+              
+              {/* Step indicators */}
+              <div className="space-y-2">
+                {analysisSteps.map((step, index) => {
+                  const StepIcon = step.icon;
+                  const isActive = index === currentStep;
+                  const isComplete = index < currentStep;
+                  
+                  return (
+                    <div 
+                      key={index}
+                      className={cn(
+                        "flex items-center gap-2 transition-all duration-300",
+                        isActive ? "text-violet-500" : isComplete ? "text-muted-foreground" : "text-muted-foreground/40"
+                      )}
+                    >
+                      <div className={cn(
+                        "flex h-5 w-5 items-center justify-center",
+                        isActive && "animate-pulse"
+                      )}>
+                        {isActive ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : isComplete ? (
+                          <Check className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <StepIcon className="h-4 w-4" />
+                        )}
+                      </div>
+                      <span className={cn(
+                        "text-xs transition-all duration-200",
+                        isActive && "font-medium"
+                      )}>
+                        {step.text}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Results */}
           {hasAnalyzed && !isAnalyzing && (
