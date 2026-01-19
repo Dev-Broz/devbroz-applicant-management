@@ -94,17 +94,27 @@ export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssist
     setIsStreaming(true);
     setDisplayedContent('');
 
-    // Simulate streaming text effect
+    // Simulate LLM-like streaming with variable speed and natural pauses
     const fullMessage = response.message;
-    let currentIndex = 0;
+    const words = fullMessage.split(' ');
+    let currentWordIndex = 0;
     
-    const streamInterval = setInterval(() => {
-      if (currentIndex < fullMessage.length) {
-        const charsToAdd = Math.min(3, fullMessage.length - currentIndex);
-        setDisplayedContent(fullMessage.slice(0, currentIndex + charsToAdd));
-        currentIndex += charsToAdd;
+    const streamNextChunk = () => {
+      if (currentWordIndex < words.length) {
+        // Add 1-3 words at a time for natural chunking
+        const wordsToAdd = Math.min(1 + Math.floor(Math.random() * 2), words.length - currentWordIndex);
+        currentWordIndex += wordsToAdd;
+        setDisplayedContent(words.slice(0, currentWordIndex).join(' '));
+        
+        // Variable delay: faster for short words, slower for longer/punctuation
+        const lastWord = words[currentWordIndex - 1] || '';
+        const hasPunctuation = /[.,!?:;]$/.test(lastWord);
+        const baseDelay = 30 + Math.random() * 40; // 30-70ms base
+        const punctuationPause = hasPunctuation ? 150 + Math.random() * 100 : 0; // Extra pause for punctuation
+        const lengthDelay = Math.min(lastWord.length * 5, 30); // Longer words = slightly longer
+        
+        setTimeout(streamNextChunk, baseDelay + punctuationPause + lengthDelay);
       } else {
-        clearInterval(streamInterval);
         setIsStreaming(false);
         const assistantMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -114,7 +124,9 @@ export function AIChatAssistant({ open, onOpenChange, applicants }: AIChatAssist
         setMessages(prev => [...prev, assistantMessage]);
         setDisplayedContent('');
       }
-    }, 20);
+    };
+    
+    streamNextChunk();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
