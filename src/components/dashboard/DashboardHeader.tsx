@@ -46,7 +46,7 @@ export function DashboardHeader({
     if (searchStep < searchSteps.length - 1) {
       const timer = setTimeout(() => {
         setSearchStep(prev => prev + 1);
-      }, 600);
+      }, 1400); // ~1.4s per step for 6s total
       return () => clearTimeout(timer);
     }
   }, [isSearching, searchStep]);

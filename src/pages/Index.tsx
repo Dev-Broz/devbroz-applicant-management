@@ -53,11 +53,11 @@ const Index = () => {
     const query = filters.searchQuery;
     if (isSemanticQuery(query)) {
       setIsSemanticSearching(true);
-      // Simulate AI processing time (2.5s)
+      // Simulate AI processing time (6s for demo visibility)
       setTimeout(() => {
         setSubmittedSearchQuery(query);
         setIsSemanticSearching(false);
-      }, 2500);
+      }, 6000);
     } else {
       setSubmittedSearchQuery(query);
     }
