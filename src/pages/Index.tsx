@@ -27,6 +27,8 @@ const Index = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [aiShortlistOpen, setAIShortlistOpen] = useState(false);
   const [aiShortlistSource, setAIShortlistSource] = useState<'talent-pool' | 'work-with-us'>('talent-pool');
+  const [isSemanticSearching, setIsSemanticSearching] = useState(false);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [filters, setFilters] = useState<FilterState>({
     categories: [],
     experienceLevels: [],
@@ -46,23 +48,39 @@ const Index = () => {
     seedDatabase().catch(console.error);
   }, []);
 
+  // Debounce semantic search with loading animation
+  useEffect(() => {
+    const query = filters.searchQuery;
+    if (isSemanticQuery(query)) {
+      setIsSemanticSearching(true);
+      const timer = setTimeout(() => {
+        setDebouncedSearchQuery(query);
+        setIsSemanticSearching(false);
+      }, 800);
+      return () => clearTimeout(timer);
+    } else {
+      setDebouncedSearchQuery(query);
+      setIsSemanticSearching(false);
+    }
+  }, [filters.searchQuery]);
+
   const allApplicants = useMemo(() => [...talentPool, ...workWithUs], [talentPool, workWithUs]);
 
   // Check if current search is semantic
   const isSemanticSearchActive = useMemo(() => {
-    return filters.searchQuery.length > 2 && isSemanticQuery(filters.searchQuery);
-  }, [filters.searchQuery]);
+    return debouncedSearchQuery.length > 2 && isSemanticQuery(debouncedSearchQuery);
+  }, [debouncedSearchQuery]);
 
   const filterApplicants = (applicants: Applicant[]) => {
     let filtered = applicants;
     
     // If semantic search is active, use AI matching
-    if (isSemanticSearchActive) {
-      const semanticMatches = getSemanticMatches(filters.searchQuery, applicants);
+    if (isSemanticSearchActive && !isSemanticSearching) {
+      const semanticMatches = getSemanticMatches(debouncedSearchQuery, applicants);
       if (semanticMatches.length > 0) {
         filtered = semanticMatches;
       }
-    } else if (filters.searchQuery) {
+    } else if (filters.searchQuery && !isSemanticSearching) {
       // Regular text search
       const query = filters.searchQuery.toLowerCase();
       filtered = applicants.filter((applicant) => {
@@ -222,7 +240,8 @@ const Index = () => {
       <DashboardHeader
         searchQuery={filters.searchQuery}
         onSearchChange={handleSearchChange}
-        isSemanticSearch={isSemanticSearchActive}
+        isSemanticSearch={isSemanticSearchActive || isSemanticSearching}
+        isSearching={isSemanticSearching}
         onChatOpen={() => setChatOpen(true)}
       />
 
