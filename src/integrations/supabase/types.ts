@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      custom_filters: {
+        Row: {
+          created_at: string
+          description: string | null
+          filter_criteria: Json
+          id: string
+          matched_applicant_ids: string[] | null
+          name: string
+          original_query: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          filter_criteria: Json
+          id?: string
+          matched_applicant_ids?: string[] | null
+          name: string
+          original_query?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          filter_criteria?: Json
+          id?: string
+          matched_applicant_ids?: string[] | null
+          name?: string
+          original_query?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       talent_pool_applicants: {
         Row: {
           application_responses: Json | null
