@@ -1,12 +1,17 @@
 import { useState } from 'react';
-import { Filter, Briefcase, Clock, Users, ChevronDown, ChevronRight } from 'lucide-react';
+import { Filter, Briefcase, Clock, Users, ChevronDown, ChevronRight, Sparkles, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
-import { FilterState, JobCategory, ExperienceLevel, EmploymentType } from '@/types/applicant';
+import { Button } from '@/components/ui/button';
+import { FilterState, JobCategory, ExperienceLevel, EmploymentType, CustomFilter } from '@/types/applicant';
 import { cn } from '@/lib/utils';
 
 interface FilterSidebarProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
+  customFilters?: CustomFilter[];
+  activeCustomFilterId?: string | null;
+  onApplyCustomFilter?: (filter: CustomFilter) => void;
+  onDeleteCustomFilter?: (filterId: string) => void;
 }
 
 const jobCategories: JobCategory[] = ['Energy Consultant', 'Renewable Energy', 'Business Consultant'];
@@ -42,7 +47,7 @@ function FilterGroup({ title, icon, children, defaultOpen = true }: FilterGroupP
       <div
         className={cn(
           'overflow-hidden transition-all duration-200',
-          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
         )}
       >
         <div className="mt-1 space-y-1 pl-8">{children}</div>
@@ -51,7 +56,14 @@ function FilterGroup({ title, icon, children, defaultOpen = true }: FilterGroupP
   );
 }
 
-export function FilterSidebar({ filters, onFiltersChange }: FilterSidebarProps) {
+export function FilterSidebar({ 
+  filters, 
+  onFiltersChange, 
+  customFilters = [],
+  activeCustomFilterId,
+  onApplyCustomFilter,
+  onDeleteCustomFilter,
+}: FilterSidebarProps) {
   const toggleCategory = (category: JobCategory) => {
     const newCategories = filters.categories.includes(category)
       ? filters.categories.filter((c) => c !== category)
@@ -74,11 +86,67 @@ export function FilterSidebar({ filters, onFiltersChange }: FilterSidebarProps) 
   };
 
   return (
-    <aside className="w-64 shrink-0 border-r border-sidebar-border bg-sidebar p-4">
+    <aside className="w-64 shrink-0 border-r border-sidebar-border bg-sidebar p-4 overflow-y-auto">
       <div className="flex items-center gap-2 mb-6 px-2">
         <Filter className="h-5 w-5 text-primary" />
         <span className="font-semibold text-sidebar-foreground">Filters</span>
       </div>
+
+      {/* Custom Filters Section */}
+      {customFilters.length > 0 && (
+        <FilterGroup
+          title="Custom Filters"
+          icon={<Sparkles className="h-4 w-4 text-violet-500" />}
+          defaultOpen={true}
+        >
+          <div className="space-y-2">
+            {customFilters.map((filter) => (
+              <div
+                key={filter.id}
+                className={cn(
+                  'group relative rounded-lg border p-2.5 cursor-pointer transition-all',
+                  activeCustomFilterId === filter.id
+                    ? 'border-violet-500 bg-violet-50 dark:bg-violet-950/30'
+                    : 'border-transparent hover:border-violet-500/30 hover:bg-muted/50'
+                )}
+                onClick={() => onApplyCustomFilter?.(filter)}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className={cn(
+                      'text-sm font-medium truncate',
+                      activeCustomFilterId === filter.id ? 'text-violet-700 dark:text-violet-300' : 'text-foreground'
+                    )}>
+                      {filter.name}
+                    </p>
+                    {filter.description && (
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        {filter.description}
+                      </p>
+                    )}
+                    {filter.matchedApplicantIds && (
+                      <p className="text-xs text-violet-600 dark:text-violet-400 mt-1">
+                        {filter.matchedApplicantIds.length} candidates
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteCustomFilter?.(filter.id);
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </FilterGroup>
+      )}
 
       <FilterGroup
         title="Job Category"

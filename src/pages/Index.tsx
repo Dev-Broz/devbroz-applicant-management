@@ -8,11 +8,13 @@ import { HiringPipelinesList } from '@/components/dashboard/HiringPipelinesList'
 import { HiringPipelineView } from '@/components/dashboard/HiringPipelineView';
 import { AIChatFullView } from '@/components/dashboard/AIChatFullView';
 import { AIShortlistDialog } from '@/components/dashboard/AIShortlistDialog';
-import { FilterState, Applicant } from '@/types/applicant';
+import { SaveCustomFilterDialog } from '@/components/dashboard/SaveCustomFilterDialog';
+import { FilterState, Applicant, AIFilterCriteria, CustomFilter } from '@/types/applicant';
 import { useHiringPipelines } from '@/hooks/useHiringPipelines';
 import { useTalentPoolApplicants, useWorkWithUsApplicants, useUpdateApplicantStatus } from '@/hooks/useApplicants';
+import { useCustomFilters, useSaveCustomFilter, useDeleteCustomFilter } from '@/hooks/useCustomFilters';
 import { seedDatabase } from '@/utils/seedDatabase';
-import { isSemanticQuery, getSemanticMatches } from '@/utils/aiDemoData';
+import { isSemanticQuery, getSemanticMatches, criteriaToExperienceLevels } from '@/utils/aiDemoData';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -34,11 +36,28 @@ const Index = () => {
     employmentTypes: [],
     searchQuery: '',
   });
+  
+  // AI Filter state
+  const [aiMatchedIds, setAiMatchedIds] = useState<string[] | null>(null);
+  const [activeCustomFilterId, setActiveCustomFilterId] = useState<string | null>(null);
+  
+  // Save filter dialog state
+  const [saveFilterDialogOpen, setSaveFilterDialogOpen] = useState(false);
+  const [pendingFilterData, setPendingFilterData] = useState<{
+    criteria: AIFilterCriteria;
+    query: string;
+    matchedIds: string[];
+  } | null>(null);
 
   // Fetch data from database
   const { data: talentPool = [], isLoading: talentPoolLoading } = useTalentPoolApplicants();
   const { data: workWithUs = [], isLoading: workWithUsLoading } = useWorkWithUsApplicants();
   const updateStatus = useUpdateApplicantStatus();
+  
+  // Custom filters
+  const { data: customFilters = [] } = useCustomFilters();
+  const saveCustomFilter = useSaveCustomFilter();
+  const deleteCustomFilter = useDeleteCustomFilter();
 
   const { pipelines, createPipeline, deletePipeline, getPipeline } = useHiringPipelines();
 
@@ -79,8 +98,11 @@ const Index = () => {
   const filterApplicants = (applicants: Applicant[]) => {
     let filtered = applicants;
     
-    // If semantic search is active, use AI matching
-    if (isSemanticSearchActive && !isSemanticSearching) {
+    // If AI matched IDs are set, filter by those first
+    if (aiMatchedIds && aiMatchedIds.length > 0) {
+      filtered = applicants.filter(a => aiMatchedIds.includes(a.id));
+    } else if (isSemanticSearchActive && !isSemanticSearching) {
+      // If semantic search is active, use AI matching
       const semanticMatches = getSemanticMatches(submittedSearchQuery, applicants);
       if (semanticMatches.length > 0) {
         filtered = semanticMatches;
@@ -113,8 +135,8 @@ const Index = () => {
     });
   };
 
-  const filteredTalentPool = useMemo(() => filterApplicants(talentPool), [talentPool, filters, isSemanticSearchActive, submittedSearchQuery]);
-  const filteredWorkWithUs = useMemo(() => filterApplicants(workWithUs), [workWithUs, filters, isSemanticSearchActive, submittedSearchQuery]);
+  const filteredTalentPool = useMemo(() => filterApplicants(talentPool), [talentPool, filters, isSemanticSearchActive, submittedSearchQuery, aiMatchedIds]);
+  const filteredWorkWithUs = useMemo(() => filterApplicants(workWithUs), [workWithUs, filters, isSemanticSearchActive, submittedSearchQuery, aiMatchedIds]);
 
   const handleSearchChange = (query: string) => {
     setFilters((prev) => ({ ...prev, searchQuery: query }));
@@ -174,6 +196,101 @@ const Index = () => {
         });
       }
     });
+  };
+
+  // AI Chat handlers
+  const handleApplyAIFilter = (criteria: AIFilterCriteria, matchedIds: string[]) => {
+    // Set the matched IDs for filtering
+    setAiMatchedIds(matchedIds);
+    
+    // Apply criteria to standard filters
+    setFilters(prev => ({
+      ...prev,
+      categories: criteria.categories || [],
+      experienceLevels: criteria.experienceLevels || criteriaToExperienceLevels(criteria.minExperienceYears),
+      employmentTypes: criteria.employmentTypes || [],
+    }));
+    
+    // Clear any active custom filter
+    setActiveCustomFilterId(null);
+    
+    // Switch to talent pool tab
+    setActiveTab('talent-pool');
+    
+    toast.success(`Showing ${matchedIds.length} candidates matching your AI search`);
+  };
+
+  const handleOpenSaveFilterDialog = (filter: Omit<CustomFilter, 'id' | 'createdAt'>, matchedIds: string[]) => {
+    setPendingFilterData({
+      criteria: filter.filterCriteria,
+      query: filter.originalQuery || '',
+      matchedIds,
+    });
+    setSaveFilterDialogOpen(true);
+  };
+
+  const handleSaveCustomFilter = (filter: Omit<CustomFilter, 'id' | 'createdAt'>) => {
+    saveCustomFilter.mutate(filter, {
+      onSuccess: () => {
+        toast.success(`Filter "${filter.name}" saved successfully`);
+        setSaveFilterDialogOpen(false);
+        setPendingFilterData(null);
+      },
+      onError: () => {
+        toast.error('Failed to save filter');
+      },
+    });
+  };
+
+  const handleApplyCustomFilter = (filter: CustomFilter) => {
+    // Set matched IDs if available
+    if (filter.matchedApplicantIds && filter.matchedApplicantIds.length > 0) {
+      setAiMatchedIds(filter.matchedApplicantIds);
+    } else {
+      setAiMatchedIds(null);
+    }
+    
+    // Apply filter criteria
+    setFilters(prev => ({
+      ...prev,
+      categories: filter.filterCriteria.categories || [],
+      experienceLevels: filter.filterCriteria.experienceLevels || criteriaToExperienceLevels(filter.filterCriteria.minExperienceYears),
+      employmentTypes: filter.filterCriteria.employmentTypes || [],
+    }));
+    
+    // Set active custom filter
+    setActiveCustomFilterId(filter.id);
+    
+    // Switch to talent pool
+    setActiveTab('talent-pool');
+    
+    toast.success(`Applied filter "${filter.name}"`);
+  };
+
+  const handleDeleteCustomFilter = (filterId: string) => {
+    deleteCustomFilter.mutate(filterId, {
+      onSuccess: () => {
+        toast.success('Filter deleted');
+        // Clear active filter if it was the deleted one
+        if (activeCustomFilterId === filterId) {
+          setActiveCustomFilterId(null);
+          setAiMatchedIds(null);
+        }
+      },
+      onError: () => {
+        toast.error('Failed to delete filter');
+      },
+    });
+  };
+
+  // Clear AI filter when switching tabs or changing filters manually
+  const handleFiltersChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+    // Clear AI matched IDs when user manually changes filters
+    if (aiMatchedIds) {
+      setAiMatchedIds(null);
+      setActiveCustomFilterId(null);
+    }
   };
 
   const currentPipeline = selectedPipelineId ? getPipeline(selectedPipelineId) : null;
@@ -238,7 +355,13 @@ const Index = () => {
           />
         );
       case 'ai-assistant':
-        return <AIChatFullView applicants={allApplicants} />;
+        return (
+          <AIChatFullView 
+            applicants={allApplicants} 
+            onApplyFilter={handleApplyAIFilter}
+            onSaveFilter={handleOpenSaveFilterDialog}
+          />
+        );
     }
   };
 
@@ -254,7 +377,14 @@ const Index = () => {
       />
 
       <div className="flex flex-1 overflow-hidden">
-        <FilterSidebar filters={filters} onFiltersChange={setFilters} />
+        <FilterSidebar 
+          filters={filters} 
+          onFiltersChange={handleFiltersChange}
+          customFilters={customFilters}
+          activeCustomFilterId={activeCustomFilterId}
+          onApplyCustomFilter={handleApplyCustomFilter}
+          onDeleteCustomFilter={handleDeleteCustomFilter}
+        />
 
         <main className={cn("flex-1 p-6", currentPipeline ? "overflow-visible" : "overflow-auto")}>
           {!currentPipeline && (
@@ -287,6 +417,18 @@ const Index = () => {
         applicants={aiShortlistSource === 'talent-pool' ? talentPool : workWithUs}
         onCreatePipeline={handleAIShortlistCreatePipeline}
       />
+
+      {pendingFilterData && (
+        <SaveCustomFilterDialog
+          open={saveFilterDialogOpen}
+          onOpenChange={setSaveFilterDialogOpen}
+          originalQuery={pendingFilterData.query}
+          filterCriteria={pendingFilterData.criteria}
+          matchedCount={pendingFilterData.matchedIds.length}
+          matchedApplicantIds={pendingFilterData.matchedIds}
+          onSave={handleSaveCustomFilter}
+        />
+      )}
     </div>
   );
 };

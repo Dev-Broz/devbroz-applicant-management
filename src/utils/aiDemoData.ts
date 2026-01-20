@@ -1,4 +1,4 @@
-import { Applicant } from '@/types/applicant';
+import { Applicant, AIFilterCriteria, ExperienceLevel, JobCategory } from '@/types/applicant';
 
 // Semantic search query mappings
 export const semanticSearchMappings: Record<string, { keywords: string[], categories?: string[], skills?: string[] }> = {
@@ -306,4 +306,144 @@ export function generateCandidateSummary(applicant: Applicant): {
     strengths,
     highlights: highlights.slice(0, 3)
   };
+}
+
+// Parse natural language query into structured filter criteria
+export function parseAIQueryToFilter(
+  query: string,
+  applicants: Applicant[]
+): {
+  matches: Applicant[];
+  filterCriteria: AIFilterCriteria;
+  summary: string;
+} {
+  const lowerQuery = query.toLowerCase();
+  const filterCriteria: AIFilterCriteria = {};
+  const reasons: string[] = [];
+
+  // Extract minimum experience years
+  const yearsMatch = lowerQuery.match(/(\d+)\+?\s*years?/);
+  if (yearsMatch) {
+    filterCriteria.minExperienceYears = parseInt(yearsMatch[1]);
+    reasons.push(`${filterCriteria.minExperienceYears}+ years experience`);
+  }
+
+  // Extract skills from query
+  const skillKeywords = [
+    'solar', 'solar cell', 'pv', 'photovoltaic', 'python', 'data analysis', 
+    'project management', 'energy', 'wind', 'analytics', 'strategy', 
+    'market analysis', 'business development', 'consulting', 'leadership',
+    'grid', 'storage', 'battery', 'renewable', 'sustainability', 'carbon',
+    'epc', 'design', 'engineering', 'installation'
+  ];
+  
+  const matchedSkills = skillKeywords.filter(skill => lowerQuery.includes(skill));
+  if (matchedSkills.length > 0) {
+    filterCriteria.skills = matchedSkills;
+    reasons.push(`skills in ${matchedSkills.slice(0, 3).join(', ')}`);
+  }
+
+  // Extract category hints
+  if (lowerQuery.includes('renewable') || lowerQuery.includes('solar') || lowerQuery.includes('wind') || lowerQuery.includes('pv')) {
+    filterCriteria.categories = ['Renewable Energy'];
+    reasons.push('Renewable Energy category');
+  } else if (lowerQuery.includes('energy consultant') || lowerQuery.includes('energy consulting')) {
+    filterCriteria.categories = ['Energy Consultant'];
+    reasons.push('Energy Consultant category');
+  } else if (lowerQuery.includes('business') || lowerQuery.includes('strategy')) {
+    filterCriteria.categories = ['Business Consultant'];
+    reasons.push('Business Consultant category');
+  }
+
+  // Extract employment type
+  if (lowerQuery.includes('full-time') || lowerQuery.includes('full time') || lowerQuery.includes('permanent')) {
+    filterCriteria.employmentTypes = ['Full-time'];
+    reasons.push('Full-time availability');
+  } else if (lowerQuery.includes('freelance') || lowerQuery.includes('contract')) {
+    filterCriteria.employmentTypes = ['Freelance'];
+    reasons.push('Freelance availability');
+  }
+
+  // Filter applicants based on criteria
+  let matches = applicants.filter(applicant => {
+    let score = 0;
+
+    // Experience filter
+    if (filterCriteria.minExperienceYears) {
+      const expYears = getExperienceYears(applicant.experience);
+      if (expYears >= filterCriteria.minExperienceYears) {
+        score += 2;
+      } else {
+        return false; // Hard filter on experience
+      }
+    }
+
+    // Category filter
+    if (filterCriteria.categories && filterCriteria.categories.length > 0) {
+      if (filterCriteria.categories.includes(applicant.category)) {
+        score += 3;
+      }
+    }
+
+    // Skills filter
+    if (filterCriteria.skills && filterCriteria.skills.length > 0) {
+      const matchedApplicantSkills = applicant.skills.filter(skill =>
+        filterCriteria.skills!.some(target => 
+          skill.toLowerCase().includes(target.toLowerCase()) ||
+          target.toLowerCase().includes(skill.toLowerCase())
+        )
+      );
+      if (matchedApplicantSkills.length > 0) {
+        score += matchedApplicantSkills.length * 2;
+      }
+    }
+
+    // Employment type filter
+    if (filterCriteria.employmentTypes && filterCriteria.employmentTypes.length > 0) {
+      if (filterCriteria.employmentTypes.includes(applicant.employmentType)) {
+        score += 1;
+      }
+    }
+
+    return score > 0;
+  });
+
+  // Sort by relevance (experience level as tiebreaker)
+  matches = matches.sort((a, b) => {
+    const aExp = getExperienceYears(a.experience);
+    const bExp = getExperienceYears(b.experience);
+    return bExp - aExp;
+  });
+
+  // Limit to top 20 results
+  matches = matches.slice(0, 20);
+
+  // Generate summary
+  const summary = reasons.length > 0
+    ? `Found **${matches.length} candidates** matching: ${reasons.join(', ')}.`
+    : `Found **${matches.length} candidates** matching your search.`;
+
+  return { matches, filterCriteria, summary };
+}
+
+// Helper to convert experience level to approximate years
+function getExperienceYears(experience: ExperienceLevel): number {
+  switch (experience) {
+    case 'Fresher': return 0;
+    case '5-10 Years': return 7;
+    case '10-15 Years': return 12;
+    case '15+ Years': return 17;
+    default: return 0;
+  }
+}
+
+// Convert AIFilterCriteria to experience levels for dashboard filter
+export function criteriaToExperienceLevels(minYears?: number): ExperienceLevel[] {
+  if (!minYears) return [];
+  const levels: ExperienceLevel[] = [];
+  if (minYears <= 0) levels.push('Fresher');
+  if (minYears <= 10) levels.push('5-10 Years');
+  if (minYears <= 15) levels.push('10-15 Years');
+  levels.push('15+ Years');
+  return levels;
 }

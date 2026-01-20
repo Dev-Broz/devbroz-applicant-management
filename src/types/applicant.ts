@@ -55,3 +55,23 @@ export interface HiringPipeline {
   createdAt: string;
   applicantIds: string[];
 }
+
+// AI Filter Criteria extracted from natural language queries
+export interface AIFilterCriteria {
+  categories?: JobCategory[];
+  experienceLevels?: ExperienceLevel[];
+  employmentTypes?: EmploymentType[];
+  skills?: string[];
+  minExperienceYears?: number;
+}
+
+// Custom filter saved by user
+export interface CustomFilter {
+  id: string;
+  name: string;
+  description?: string;
+  filterCriteria: AIFilterCriteria;
+  originalQuery?: string;
+  matchedApplicantIds?: string[];
+  createdAt: string;
+}
