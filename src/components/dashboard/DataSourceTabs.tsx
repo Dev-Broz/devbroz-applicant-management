@@ -1,8 +1,8 @@
-import { Users, Briefcase, GitBranch } from 'lucide-react';
+import { Users, Briefcase, GitBranch, Sparkles } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
-export type ViewTab = 'talent-pool' | 'work-with-us' | 'hiring-pipelines';
+export type ViewTab = 'talent-pool' | 'work-with-us' | 'hiring-pipelines' | 'ai-assistant';
 
 interface DataSourceTabsProps {
   activeTab: ViewTab;
@@ -13,7 +13,7 @@ interface DataSourceTabsProps {
 export function DataSourceTabs({ activeTab, onTabChange, pipelineCount }: DataSourceTabsProps) {
   return (
     <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as ViewTab)} className="w-full">
-      <TabsList className="grid w-full grid-cols-3 bg-muted/50 p-1 h-12">
+      <TabsList className="grid w-full grid-cols-4 bg-muted/50 p-1 h-12">
         <TabsTrigger
           value="talent-pool"
           className={cn(
@@ -48,6 +48,20 @@ export function DataSourceTabs({ activeTab, onTabChange, pipelineCount }: DataSo
               {pipelineCount}
             </span>
           )}
+        </TabsTrigger>
+        <TabsTrigger
+          value="ai-assistant"
+          className={cn(
+            'flex items-center gap-2 data-[state=active]:bg-card data-[state=active]:shadow-sm',
+            'text-sm font-medium',
+            'data-[state=active]:text-violet-600'
+          )}
+        >
+          <Sparkles className={cn(
+            "h-4 w-4",
+            activeTab === 'ai-assistant' ? "text-violet-500" : "text-violet-400"
+          )} />
+          AI Assistant
         </TabsTrigger>
       </TabsList>
     </Tabs>
