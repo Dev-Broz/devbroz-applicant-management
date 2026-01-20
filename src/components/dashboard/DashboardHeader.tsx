@@ -169,19 +169,16 @@ export function DashboardHeader({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button 
-                variant="ghost" 
-                size="icon" 
-                className="text-muted-foreground hover:text-foreground relative"
+                size="sm" 
+                className="bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white gap-2"
                 onClick={onChatOpen}
               >
-                <MessageCircle className="h-5 w-5" />
-                <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600">
-                  <Sparkles className="h-2 w-2 text-white" />
-                </span>
+                <Sparkles className="h-4 w-4" />
+                AI Assistant
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p className="text-xs">AI Chat Assistant</p>
+              <p className="text-xs">Open AI Assistant</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

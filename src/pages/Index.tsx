@@ -6,7 +6,7 @@ import { DataSourceTabs, ViewTab } from '@/components/dashboard/DataSourceTabs';
 import { CreateProjectDialog } from '@/components/dashboard/CreateProjectDialog';
 import { HiringPipelinesList } from '@/components/dashboard/HiringPipelinesList';
 import { HiringPipelineView } from '@/components/dashboard/HiringPipelineView';
-import { AIChatAssistant } from '@/components/dashboard/AIChatAssistant';
+import { AIChatFullView } from '@/components/dashboard/AIChatFullView';
 import { AIShortlistDialog } from '@/components/dashboard/AIShortlistDialog';
 import { FilterState, Applicant } from '@/types/applicant';
 import { useHiringPipelines } from '@/hooks/useHiringPipelines';
@@ -24,7 +24,6 @@ const Index = () => {
   const [workWithUsSelected, setWorkWithUsSelected] = useState<Set<string>>(new Set());
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createDialogSource, setCreateDialogSource] = useState<'talent-pool' | 'work-with-us'>('talent-pool');
-  const [chatOpen, setChatOpen] = useState(false);
   const [aiShortlistOpen, setAIShortlistOpen] = useState(false);
   const [aiShortlistSource, setAIShortlistSource] = useState<'talent-pool' | 'work-with-us'>('talent-pool');
   const [isSemanticSearching, setIsSemanticSearching] = useState(false);
@@ -238,6 +237,8 @@ const Index = () => {
             onDeletePipeline={deletePipeline}
           />
         );
+      case 'ai-assistant':
+        return <AIChatFullView applicants={allApplicants} />;
     }
   };
 
@@ -249,7 +250,7 @@ const Index = () => {
         onSearchSubmit={handleSearchSubmit}
         isSemanticSearch={isSemanticQuery(filters.searchQuery)}
         isSearching={isSemanticSearching}
-        onChatOpen={() => setChatOpen(true)}
+        onChatOpen={() => setActiveTab('ai-assistant')}
       />
 
       <div className="flex flex-1 overflow-hidden">
@@ -278,12 +279,6 @@ const Index = () => {
             : workWithUsSelected.size
         }
         onConfirm={handleConfirmCreatePipeline}
-      />
-
-      <AIChatAssistant
-        open={chatOpen}
-        onOpenChange={setChatOpen}
-        applicants={allApplicants}
       />
 
       <AIShortlistDialog
