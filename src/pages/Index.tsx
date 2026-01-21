@@ -131,6 +131,11 @@ const Index = () => {
       if (filters.employmentTypes.length > 0) {
         if (!filters.employmentTypes.includes(applicant.employmentType)) return false;
       }
+      // Job ID filter (for Work With Us)
+      if (filters.jobId && applicant.source === 'work-with-us') {
+        const jobIdLower = filters.jobId.toLowerCase();
+        if (!applicant.jobId?.toLowerCase().includes(jobIdLower)) return false;
+      }
       return true;
     });
   };
@@ -384,6 +389,18 @@ const Index = () => {
           activeCustomFilterId={activeCustomFilterId}
           onApplyCustomFilter={handleApplyCustomFilter}
           onDeleteCustomFilter={handleDeleteCustomFilter}
+          onClearFilters={() => {
+            setFilters({
+              categories: [],
+              experienceLevels: [],
+              employmentTypes: [],
+              searchQuery: '',
+              jobId: undefined,
+            });
+            setAiMatchedIds(null);
+            setActiveCustomFilterId(null);
+          }}
+          dataSource={activeTab === 'work-with-us' ? 'work-with-us' : 'talent-pool'}
         />
 
         <main className={cn("flex-1 p-6", currentPipeline ? "overflow-visible" : "overflow-auto")}>

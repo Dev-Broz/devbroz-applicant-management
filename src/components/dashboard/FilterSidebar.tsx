@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Filter, Briefcase, Clock, Users, ChevronDown, ChevronRight, Sparkles, Trash2 } from 'lucide-react';
+import { Filter, Briefcase, Clock, Users, ChevronDown, ChevronRight, Sparkles, Trash2, X, Hash } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { FilterState, JobCategory, ExperienceLevel, EmploymentType, CustomFilter } from '@/types/applicant';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +13,8 @@ interface FilterSidebarProps {
   activeCustomFilterId?: string | null;
   onApplyCustomFilter?: (filter: CustomFilter) => void;
   onDeleteCustomFilter?: (filterId: string) => void;
+  onClearFilters?: () => void;
+  dataSource?: 'talent-pool' | 'work-with-us';
 }
 
 const jobCategories: JobCategory[] = ['Energy Consultant', 'Renewable Energy', 'Business Consultant'];
@@ -63,6 +66,8 @@ export function FilterSidebar({
   activeCustomFilterId,
   onApplyCustomFilter,
   onDeleteCustomFilter,
+  onClearFilters,
+  dataSource = 'talent-pool',
 }: FilterSidebarProps) {
   const toggleCategory = (category: JobCategory) => {
     const newCategories = filters.categories.includes(category)
@@ -85,11 +90,35 @@ export function FilterSidebar({
     onFiltersChange({ ...filters, employmentTypes: newTypes });
   };
 
+  const handleJobIdChange = (value: string) => {
+    onFiltersChange({ ...filters, jobId: value || undefined });
+  };
+
+  const hasActiveFilters = 
+    filters.categories.length > 0 || 
+    filters.experienceLevels.length > 0 || 
+    filters.employmentTypes.length > 0 ||
+    !!filters.jobId ||
+    !!activeCustomFilterId;
+
   return (
     <aside className="w-64 shrink-0 border-r border-sidebar-border bg-sidebar p-4 overflow-y-auto">
-      <div className="flex items-center gap-2 mb-6 px-2">
-        <Filter className="h-5 w-5 text-primary" />
-        <span className="font-semibold text-sidebar-foreground">Filters</span>
+      <div className="flex items-center justify-between mb-6 px-2">
+        <div className="flex items-center gap-2">
+          <Filter className="h-5 w-5 text-primary" />
+          <span className="font-semibold text-sidebar-foreground">Filters</span>
+        </div>
+        {hasActiveFilters && onClearFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClearFilters}
+            className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive"
+          >
+            <X className="h-3.5 w-3.5 mr-1" />
+            Clear
+          </Button>
+        )}
       </div>
 
       {/* Custom Filters Section */}
@@ -204,6 +233,23 @@ export function FilterSidebar({
           </label>
         ))}
       </FilterGroup>
+
+      {dataSource === 'work-with-us' && (
+        <FilterGroup
+          title="Job ID"
+          icon={<Hash className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="pr-2">
+            <Input
+              type="text"
+              placeholder="Search by Job ID..."
+              value={filters.jobId || ''}
+              onChange={(e) => handleJobIdChange(e.target.value)}
+              className="h-8 text-sm"
+            />
+          </div>
+        </FilterGroup>
+      )}
     </aside>
   );
 }

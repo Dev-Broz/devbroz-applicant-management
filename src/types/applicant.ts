@@ -47,6 +47,7 @@ export interface FilterState {
   experienceLevels: ExperienceLevel[];
   employmentTypes: EmploymentType[];
   searchQuery: string;
+  jobId?: string; // For Work With Us filtering
 }
 
 export interface HiringPipeline {
