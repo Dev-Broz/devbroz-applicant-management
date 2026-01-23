@@ -108,13 +108,22 @@ export function generateChatResponse(
 } {
   const lowerQuestion = question.toLowerCase();
   
-  // Applications this week - Enhanced drill-down
+  // Applications this week - Enhanced drill-down with experience levels and week comparison
   if (lowerQuestion.includes('this week') || lowerQuestion.includes('applications')) {
+    const now = new Date();
+    const weekAgo = new Date();
+    weekAgo.setDate(now.getDate() - 7);
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(now.getDate() - 14);
+    
     const thisWeek = allApplicants.filter(a => {
       const appliedDate = new Date(a.appliedDate);
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
       return appliedDate >= weekAgo;
+    });
+    
+    const lastWeek = allApplicants.filter(a => {
+      const appliedDate = new Date(a.appliedDate);
+      return appliedDate >= twoWeeksAgo && appliedDate < weekAgo;
     });
     
     const talentPool = thisWeek.filter(a => a.source === 'talent-pool');
@@ -130,6 +139,24 @@ export function generateChatResponse(
         .sort((a, b) => b[1] - a[1]);
     };
     
+    // Group by experience level
+    const groupByExperience = (applicants: Applicant[]) => {
+      const levels: Record<string, number> = {
+        'Entry (Fresher)': 0,
+        'Mid (5-10 Years)': 0,
+        'Senior (10+ Years)': 0
+      };
+      applicants.forEach(a => {
+        if (a.experience === 'Fresher') levels['Entry (Fresher)']++;
+        else if (a.experience === '5-10 Years') levels['Mid (5-10 Years)']++;
+        else levels['Senior (10+ Years)']++;
+      });
+      return Object.entries(levels)
+        .filter(([, count]) => count > 0)
+        .map(([level, count]) => `  • ${level}: ${count}`)
+        .join('\n') || '  _None_';
+    };
+    
     const talentPoolCategories = groupByCategory(talentPool);
     const workWithUsCategories = groupByCategory(workWithUs);
     
@@ -141,10 +168,22 @@ export function generateChatResponse(
     const talentPoolBreakdown = formatCategoryBreakdown(talentPoolCategories);
     const workWithUsBreakdown = formatCategoryBreakdown(workWithUsCategories);
     
+    // Week-over-week comparison
+    let trendMessage = '';
+    if (lastWeek.length > 0) {
+      const change = ((thisWeek.length - lastWeek.length) / lastWeek.length) * 100;
+      const changeIcon = change > 0 ? '📈' : change < 0 ? '📉' : '➡️';
+      const changeText = change > 0 ? `+${change.toFixed(0)}%` : `${change.toFixed(0)}%`;
+      trendMessage = `\n\n${changeIcon} **Week-over-week:** ${changeText} (${lastWeek.length} last week → ${thisWeek.length} this week)`;
+    } else {
+      trendMessage = `\n\n📊 **Week-over-week:** No applications last week to compare`;
+    }
+    
     return {
-      message: `📊 **Weekly Applications Summary**\n\nWe received **${thisWeek.length} applications** in the past week.\n\n**Talent Pool (${talentPool.length} applications):**\n${talentPoolBreakdown}\n\n**Work With Us (${workWithUs.length} applications):**\n${workWithUsBreakdown}`,
+      message: `📊 **Weekly Applications Summary**\n\nWe received **${thisWeek.length} applications** in the past week.${trendMessage}\n\n**Talent Pool (${talentPool.length} applications):**\n${talentPoolBreakdown}\n_Experience:_\n${groupByExperience(talentPool)}\n\n**Work With Us (${workWithUs.length} applications):**\n${workWithUsBreakdown}\n_Experience:_\n${groupByExperience(workWithUs)}`,
       data: { 
         total: thisWeek.length, 
+        lastWeekTotal: lastWeek.length,
         talentPool: talentPool.length, 
         workWithUs: workWithUs.length,
         talentPoolByCategory: Object.fromEntries(talentPoolCategories),
