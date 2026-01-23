@@ -100,7 +100,12 @@ export function getSemanticMatches(query: string, applicants: Applicant[]): Appl
 export function generateChatResponse(
   question: string, 
   allApplicants: Applicant[]
-): { message: string; data?: Record<string, unknown> } {
+): { 
+  message: string; 
+  data?: Record<string, unknown>;
+  matchedApplicants?: Applicant[];
+  filterCriteria?: AIFilterCriteria;
+} {
   const lowerQuestion = question.toLowerCase();
   
   // Applications this week
@@ -180,7 +185,9 @@ export function generateChatResponse(
     );
     return {
       message: `Found **${reportingCandidates.length} candidates** with experience preparing client reports or presentations for energy projects.`,
-      data: { count: reportingCandidates.length, candidates: reportingCandidates.map(a => a.name) }
+      data: { count: reportingCandidates.length },
+      matchedApplicants: reportingCandidates,
+      filterCriteria: { skills: ['report', 'presentation', 'documentation', 'client'] }
     };
   }
 
@@ -194,7 +201,9 @@ export function generateChatResponse(
     );
     return {
       message: `Found **${clientFacing.length} candidates** with client or stakeholder interaction experience.`,
-      data: { count: clientFacing.length, candidates: clientFacing.map(a => a.name) }
+      data: { count: clientFacing.length },
+      matchedApplicants: clientFacing,
+      filterCriteria: { skills: ['client', 'stakeholder', 'communication', 'consulting'] }
     };
   }
 
@@ -208,7 +217,9 @@ export function generateChatResponse(
     );
     return {
       message: `Found **${carbonExperts.length} candidates** with carbon accounting or emissions analysis experience.`,
-      data: { count: carbonExperts.length, candidates: carbonExperts.map(a => a.name) }
+      data: { count: carbonExperts.length },
+      matchedApplicants: carbonExperts,
+      filterCriteria: { skills: ['carbon', 'emissions', 'sustainability', 'environmental'] }
     };
   }
 
