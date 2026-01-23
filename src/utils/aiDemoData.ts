@@ -142,27 +142,27 @@ export function generateChatResponse(
     // Group by experience level
     const groupByExperience = (applicants: Applicant[]) => {
       const levels: Record<string, number> = {
-        'Entry (Fresher)': 0,
-        'Mid (5-10 Years)': 0,
-        'Senior (10+ Years)': 0
+        '🌱 Entry': 0,
+        '💼 Mid-Level': 0,
+        '⭐ Senior': 0
       };
       applicants.forEach(a => {
-        if (a.experience === 'Fresher') levels['Entry (Fresher)']++;
-        else if (a.experience === '5-10 Years') levels['Mid (5-10 Years)']++;
-        else levels['Senior (10+ Years)']++;
+        if (a.experience === 'Fresher') levels['🌱 Entry']++;
+        else if (a.experience === '5-10 Years') levels['💼 Mid-Level']++;
+        else levels['⭐ Senior']++;
       });
       return Object.entries(levels)
         .filter(([, count]) => count > 0)
-        .map(([level, count]) => `  • ${level}: ${count}`)
-        .join('\n') || '  _None_';
+        .map(([level, count]) => `${level}: **${count}**`)
+        .join('  ·  ') || '_None_';
     };
     
     const talentPoolCategories = groupByCategory(talentPool);
     const workWithUsCategories = groupByCategory(workWithUs);
     
     const formatCategoryBreakdown = (entries: [string, number][]) => {
-      if (entries.length === 0) return '  _No applications_';
-      return entries.map(([cat, count]) => `  • ${cat}: ${count}`).join('\n');
+      if (entries.length === 0) return '> _No applications_';
+      return entries.map(([cat, count]) => `> • ${cat}: **${count}**`).join('\n');
     };
     
     const talentPoolBreakdown = formatCategoryBreakdown(talentPoolCategories);
@@ -174,13 +174,33 @@ export function generateChatResponse(
       const change = ((thisWeek.length - lastWeek.length) / lastWeek.length) * 100;
       const changeIcon = change > 0 ? '📈' : change < 0 ? '📉' : '➡️';
       const changeText = change > 0 ? `+${change.toFixed(0)}%` : `${change.toFixed(0)}%`;
-      trendMessage = `\n\n${changeIcon} **Week-over-week:** ${changeText} (${lastWeek.length} last week → ${thisWeek.length} this week)`;
+      trendMessage = `${changeIcon} **${changeText}** vs last week _(${lastWeek.length} → ${thisWeek.length})_`;
     } else {
-      trendMessage = `\n\n📊 **Week-over-week:** No applications last week to compare`;
+      trendMessage = `📊 _No data from last week to compare_`;
     }
     
+    const message = `## 📊 Weekly Applications Summary
+
+**${thisWeek.length}** new applications this week
+
+${trendMessage}
+
+---
+
+### 🎯 Talent Pool — ${talentPool.length} applications
+${talentPoolBreakdown}
+
+**By Experience:** ${groupByExperience(talentPool)}
+
+---
+
+### 💼 Work With Us — ${workWithUs.length} applications
+${workWithUsBreakdown}
+
+**By Experience:** ${groupByExperience(workWithUs)}`;
+    
     return {
-      message: `📊 **Weekly Applications Summary**\n\nWe received **${thisWeek.length} applications** in the past week.${trendMessage}\n\n**Talent Pool (${talentPool.length} applications):**\n${talentPoolBreakdown}\n_Experience:_\n${groupByExperience(talentPool)}\n\n**Work With Us (${workWithUs.length} applications):**\n${workWithUsBreakdown}\n_Experience:_\n${groupByExperience(workWithUs)}`,
+      message,
       data: { 
         total: thisWeek.length, 
         lastWeekTotal: lastWeek.length,
