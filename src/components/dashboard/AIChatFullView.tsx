@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Loader2, Database, BarChart3, Brain, MessageSquare, Filter, Save, MapPin, Briefcase, Clock, Users, Leaf } from 'lucide-react';
+import { Send, Sparkles, Loader2, Database, BarChart3, Brain, MessageSquare, Filter, Save, MapPin, Briefcase, Clock, Users, Leaf, CalendarDays, PieChart, Star, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -25,7 +25,8 @@ interface AIChatFullViewProps {
   onSaveFilter: (filter: Omit<CustomFilter, 'id' | 'createdAt'>, matchedIds: string[]) => void;
 }
 
-const suggestedQuestions = [
+// Candidate search questions
+const candidateSearchQuestions = [
   {
     question: "List candidates with experience preparing client reports or presentations for energy projects.",
     description: "Find candidates with reporting skills",
@@ -41,10 +42,34 @@ const suggestedQuestions = [
     description: "Carbon and sustainability expertise",
     icon: Leaf,
   },
+];
+
+// Analysis questions
+const analysisQuestions = [
+  {
+    question: "How many applications did we receive this week?",
+    description: "Weekly application trends",
+    icon: CalendarDays,
+  },
+  {
+    question: "What's the pipeline status overview?",
+    description: "View status distribution",
+    icon: PieChart,
+  },
+  {
+    question: "How many candidates are currently shortlisted?",
+    description: "Shortlist summary",
+    icon: Star,
+  },
   {
     question: "What's the category breakdown?",
-    description: "Analyze applicants by job category",
+    description: "Distribution by job category",
     icon: BarChart3,
+  },
+  {
+    question: "Show me candidates with 10+ years of experience.",
+    description: "Senior talent overview",
+    icon: TrendingUp,
   },
 ];
 
@@ -451,35 +476,71 @@ export function AIChatFullView({ applicants, onApplyFilter, onSaveFilter }: AICh
 
         {/* Suggested Questions Sidebar */}
         {showSuggestions && (
-          <div className="w-80 shrink-0">
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">Suggested Questions</h3>
-            <div className="space-y-3">
-              {suggestedQuestions.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Card
-                    key={item.question}
-                    onClick={() => handleSend(item.question)}
-                    className="p-4 cursor-pointer transition-all duration-200 hover:border-violet-500/50 hover:shadow-md hover:shadow-violet-500/10 group"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted group-hover:bg-violet-500/10 transition-colors">
-                        <Icon className="h-4 w-4 text-muted-foreground group-hover:text-violet-500 transition-colors" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground group-hover:text-violet-600 transition-colors">
-                          {item.question}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {item.description}
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
+          <ScrollArea className="w-80 shrink-0 h-full">
+            <div className="pr-4 space-y-6">
+              {/* Candidate Search Section */}
+              <div>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Search Candidates</h3>
+                <div className="space-y-2">
+                  {candidateSearchQuestions.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Card
+                        key={item.question}
+                        onClick={() => handleSend(item.question)}
+                        className="p-3 cursor-pointer transition-all duration-200 hover:border-violet-500/50 hover:shadow-md hover:shadow-violet-500/10 group"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted group-hover:bg-violet-500/10 transition-colors">
+                            <Icon className="h-4 w-4 text-muted-foreground group-hover:text-violet-500 transition-colors" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-foreground group-hover:text-violet-600 transition-colors line-clamp-2">
+                              {item.question}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Analytics Section */}
+              <div>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Analytics</h3>
+                <div className="space-y-2">
+                  {analysisQuestions.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Card
+                        key={item.question}
+                        onClick={() => handleSend(item.question)}
+                        className="p-3 cursor-pointer transition-all duration-200 hover:border-violet-500/50 hover:shadow-md hover:shadow-violet-500/10 group"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted group-hover:bg-violet-500/10 transition-colors">
+                            <Icon className="h-4 w-4 text-muted-foreground group-hover:text-violet-500 transition-colors" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-foreground group-hover:text-violet-600 transition-colors line-clamp-2">
+                              {item.question}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
+          </ScrollArea>
         )}
       </div>
     </div>
