@@ -170,6 +170,48 @@ export function generateChatResponse(
     };
   }
   
+  // Client reports / presentations query
+  if (lowerQuestion.includes('report') || lowerQuestion.includes('presentation')) {
+    const reportingCandidates = allApplicants.filter(a => 
+      a.skills.some(skill => 
+        ['report', 'presentation', 'documentation', 'analysis', 'communication', 'client']
+          .some(kw => skill.toLowerCase().includes(kw))
+      )
+    );
+    return {
+      message: `Found **${reportingCandidates.length} candidates** with experience preparing client reports or presentations for energy projects.`,
+      data: { count: reportingCandidates.length, candidates: reportingCandidates.map(a => a.name) }
+    };
+  }
+
+  // Client / stakeholder interaction query
+  if (lowerQuestion.includes('client') || lowerQuestion.includes('stakeholder')) {
+    const clientFacing = allApplicants.filter(a => 
+      a.skills.some(skill => 
+        ['client', 'stakeholder', 'communication', 'presentation', 'consulting', 'management']
+          .some(kw => skill.toLowerCase().includes(kw))
+      )
+    );
+    return {
+      message: `Found **${clientFacing.length} candidates** with client or stakeholder interaction experience.`,
+      data: { count: clientFacing.length, candidates: clientFacing.map(a => a.name) }
+    };
+  }
+
+  // Carbon accounting / emissions query
+  if (lowerQuestion.includes('carbon') || lowerQuestion.includes('emissions')) {
+    const carbonExperts = allApplicants.filter(a => 
+      a.skills.some(skill => 
+        ['carbon', 'emissions', 'ghg', 'sustainability', 'environmental', 'lifecycle', 'climate']
+          .some(kw => skill.toLowerCase().includes(kw))
+      )
+    );
+    return {
+      message: `Found **${carbonExperts.length} candidates** with carbon accounting or emissions analysis experience.`,
+      data: { count: carbonExperts.length, candidates: carbonExperts.map(a => a.name) }
+    };
+  }
+
   // Skills query
   if (lowerQuestion.includes('skill') || lowerQuestion.includes('solar') || lowerQuestion.includes('python') || lowerQuestion.includes('energy')) {
     const skillKeywords = ['solar', 'python', 'energy', 'project management', 'data analysis'].filter(s => lowerQuestion.includes(s));
@@ -334,7 +376,10 @@ export function parseAIQueryToFilter(
     'project management', 'energy', 'wind', 'analytics', 'strategy', 
     'market analysis', 'business development', 'consulting', 'leadership',
     'grid', 'storage', 'battery', 'renewable', 'sustainability', 'carbon',
-    'epc', 'design', 'engineering', 'installation'
+    'epc', 'design', 'engineering', 'installation',
+    'client reports', 'presentations', 'reporting', 'stakeholder', 
+    'client interaction', 'client-facing', 'carbon accounting', 
+    'emissions analysis', 'emissions', 'ghg', 'lifecycle assessment'
   ];
   
   const matchedSkills = skillKeywords.filter(skill => lowerQuery.includes(skill));
