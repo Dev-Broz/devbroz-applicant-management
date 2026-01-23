@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Loader2, Database, BarChart3, Brain, MessageSquare, Filter, Save, MapPin, Briefcase, Clock } from 'lucide-react';
+import { Send, Sparkles, Loader2, Database, BarChart3, Brain, MessageSquare, Filter, Save, MapPin, Briefcase, Clock, Users, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -27,19 +27,19 @@ interface AIChatFullViewProps {
 
 const suggestedQuestions = [
   {
-    question: "Show me top candidates with 8+ years in solar cell design",
-    description: "Find experienced solar specialists",
-    icon: Sparkles,
+    question: "List candidates with experience preparing client reports or presentations for energy projects.",
+    description: "Find candidates with reporting skills",
+    icon: Briefcase,
   },
   {
-    question: "How many applications this week?",
-    description: "Get a summary of recent applications",
-    icon: BarChart3,
+    question: "How many candidates have interacted directly with clients or stakeholders?",
+    description: "Client-facing experience count",
+    icon: Users,
   },
   {
-    question: "Find senior energy consultants with project management",
-    description: "Search by skills and experience",
-    icon: Database,
+    question: "List candidates who have done carbon accounting or emissions analysis.",
+    description: "Carbon and sustainability expertise",
+    icon: Leaf,
   },
   {
     question: "What's the category breakdown?",
