@@ -127,7 +127,7 @@ export function AIChatFullView({ applicants, onApplyFilter, onSaveFilter }: AICh
     // Simulate AI processing with thinking animation (2.7s total for all steps)
     await new Promise(resolve => setTimeout(resolve, 2700));
 
-    let response: { message: string; data?: Record<string, unknown> };
+    let response: { message: string; data?: Record<string, unknown>; matchedApplicants?: Applicant[]; filterCriteria?: AIFilterCriteria };
     let candidates: Applicant[] | undefined;
     let filterCriteria: AIFilterCriteria | undefined;
 
@@ -142,6 +142,14 @@ export function AIChatFullView({ applicants, onApplyFilter, onSaveFilter }: AICh
       setPendingQuery(messageText);
     } else {
       response = generateChatResponse(messageText, applicants);
+      // If response includes matched applicants, use them for visual display
+      if (response.matchedApplicants && response.matchedApplicants.length > 0) {
+        candidates = response.matchedApplicants;
+        filterCriteria = response.filterCriteria;
+        setPendingCandidates(response.matchedApplicants);
+        setPendingCriteria(response.filterCriteria || {});
+        setPendingQuery(messageText);
+      }
     }
     
     setIsTyping(false);
