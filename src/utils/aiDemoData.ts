@@ -108,7 +108,7 @@ export function generateChatResponse(
 } {
   const lowerQuestion = question.toLowerCase();
   
-  // Applications this week
+  // Applications this week - Enhanced drill-down
   if (lowerQuestion.includes('this week') || lowerQuestion.includes('applications')) {
     const thisWeek = allApplicants.filter(a => {
       const appliedDate = new Date(a.appliedDate);
@@ -116,9 +116,40 @@ export function generateChatResponse(
       weekAgo.setDate(weekAgo.getDate() - 7);
       return appliedDate >= weekAgo;
     });
+    
+    const talentPool = thisWeek.filter(a => a.source === 'talent-pool');
+    const workWithUs = thisWeek.filter(a => a.source === 'work-with-us');
+    
+    // Group by category for each source
+    const groupByCategory = (applicants: Applicant[]) => {
+      const categories: Record<string, number> = {};
+      applicants.forEach(a => {
+        categories[a.category] = (categories[a.category] || 0) + 1;
+      });
+      return Object.entries(categories)
+        .sort((a, b) => b[1] - a[1]);
+    };
+    
+    const talentPoolCategories = groupByCategory(talentPool);
+    const workWithUsCategories = groupByCategory(workWithUs);
+    
+    const formatCategoryBreakdown = (entries: [string, number][]) => {
+      if (entries.length === 0) return '  _No applications_';
+      return entries.map(([cat, count]) => `  • ${cat}: ${count}`).join('\n');
+    };
+    
+    const talentPoolBreakdown = formatCategoryBreakdown(talentPoolCategories);
+    const workWithUsBreakdown = formatCategoryBreakdown(workWithUsCategories);
+    
     return {
-      message: `There were **${thisWeek.length} applications** received in the past week. The breakdown includes ${thisWeek.filter(a => a.source === 'talent-pool').length} from Talent Pool and ${thisWeek.filter(a => a.source === 'work-with-us').length} from Work With Us applications.`,
-      data: { count: thisWeek.length, talentPool: thisWeek.filter(a => a.source === 'talent-pool').length, workWithUs: thisWeek.filter(a => a.source === 'work-with-us').length }
+      message: `📊 **Weekly Applications Summary**\n\nWe received **${thisWeek.length} applications** in the past week.\n\n**Talent Pool (${talentPool.length} applications):**\n${talentPoolBreakdown}\n\n**Work With Us (${workWithUs.length} applications):**\n${workWithUsBreakdown}`,
+      data: { 
+        total: thisWeek.length, 
+        talentPool: talentPool.length, 
+        workWithUs: workWithUs.length,
+        talentPoolByCategory: Object.fromEntries(talentPoolCategories),
+        workWithUsByCategory: Object.fromEntries(workWithUsCategories)
+      }
     };
   }
   
