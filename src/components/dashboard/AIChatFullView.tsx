@@ -90,7 +90,7 @@ export function AIChatFullView({ applicants, onApplyFilter, onSaveFilter }: AICh
     if (isTyping && thinkingStep < thinkingSteps.length - 1) {
       const timer = setTimeout(() => {
         setThinkingStep(prev => prev + 1);
-      }, 900);
+      }, 1400);
       return () => clearTimeout(timer);
     }
   }, [isTyping, thinkingStep]);
@@ -124,8 +124,8 @@ export function AIChatFullView({ applicants, onApplyFilter, onSaveFilter }: AICh
     setPendingCriteria(null);
     setPendingQuery('');
 
-    // Simulate AI processing with thinking animation (2.7s total for all steps)
-    await new Promise(resolve => setTimeout(resolve, 2700));
+    // Simulate AI processing with thinking animation (4.2s total for all steps)
+    await new Promise(resolve => setTimeout(resolve, 4200));
 
     let response: { message: string; data?: Record<string, unknown>; matchedApplicants?: Applicant[]; filterCriteria?: AIFilterCriteria };
     let candidates: Applicant[] | undefined;
