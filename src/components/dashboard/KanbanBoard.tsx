@@ -1,6 +1,8 @@
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import { Applicant, ApplicantStatus } from '@/types/applicant';
 import { KanbanColumn } from './KanbanColumn';
+import { projectsApi } from '@/services/api';
+import { toast } from 'sonner';
 
 interface KanbanBoardProps {
   applicants: Applicant[];
@@ -10,7 +12,7 @@ interface KanbanBoardProps {
 const statuses: ApplicantStatus[] = ['New Applicants', 'Reviewed', 'Shortlisted', 'Archived'];
 
 export function KanbanBoard({ applicants, onApplicantsChange }: KanbanBoardProps) {
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = async (result: DropResult) => {
     const { destination, source, draggableId } = result;
 
     if (!destination) return;
@@ -22,17 +24,31 @@ export function KanbanBoard({ applicants, onApplicantsChange }: KanbanBoardProps
       return;
     }
 
+    const newStatus = destination.droppableId as ApplicantStatus;
+    
+    // Optimistically update UI
     const updatedApplicants = applicants.map((applicant) => {
       if (applicant.id === draggableId) {
         return {
           ...applicant,
-          status: destination.droppableId as ApplicantStatus,
+          status: newStatus,
         };
       }
       return applicant;
     });
 
     onApplicantsChange(updatedApplicants);
+    
+    // Sync status to Firebase
+    try {
+      await projectsApi.updateApplicantStatus(draggableId, newStatus);
+      toast.success(`Status updated to ${newStatus}`);
+    } catch (error) {
+      console.error('Failed to update status in Firebase:', error);
+      toast.error('Failed to sync status to database');
+      // Revert on error
+      onApplicantsChange(applicants);
+    }
   };
 
   const getApplicantsByStatus = (status: ApplicantStatus) => {

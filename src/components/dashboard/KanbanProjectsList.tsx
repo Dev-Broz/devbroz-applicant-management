@@ -21,6 +21,28 @@ interface KanbanProjectsListProps {
   onDeleteProject: (projectId: string) => void;
 }
 
+/**
+ * Format project date - handles both ISO strings and Firebase Timestamps
+ */
+function formatProjectDate(date: any): string {
+  try {
+    // If it's a Firebase Timestamp object with _seconds
+    if (date && typeof date === 'object' && '_seconds' in date) {
+      return format(new Date(date._seconds * 1000), 'MMM d, yyyy');
+    }
+    
+    // If it's an ISO string or Date object
+    if (date) {
+      return format(new Date(date), 'MMM d, yyyy');
+    }
+    
+    return 'Unknown date';
+  } catch (e) {
+    console.error('Error formatting date:', e);
+    return 'Unknown date';
+  }
+}
+
 export function KanbanProjectsList({
   projects,
   onSelectProject,
@@ -50,7 +72,7 @@ export function KanbanProjectsList({
                 <CardTitle className="text-base font-semibold">{project.name}</CardTitle>
                 <CardDescription className="flex items-center gap-1 mt-1">
                   <Calendar className="h-3 w-3" />
-                  {format(new Date(project.createdAt), 'MMM d, yyyy')}
+                  {formatProjectDate(project.createdAt)}
                 </CardDescription>
               </div>
               <AlertDialog>

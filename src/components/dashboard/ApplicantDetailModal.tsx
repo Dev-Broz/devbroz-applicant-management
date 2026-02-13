@@ -26,6 +26,29 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
     toast.info(`Opening resume for ${applicant.name}`);
   };
 
+  // Format answer to remove array brackets and quotes
+  const formatAnswer = (answer: string): string => {
+    if (!answer) return '';
+    
+    // Check if the answer looks like a JSON array (starts with [ and ends with ])
+    const trimmed = answer.trim();
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        // Try to parse as JSON array
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          // Join array items with comma and space
+          return parsed.join(', ');
+        }
+      } catch (e) {
+        // If parsing fails, just remove the brackets manually
+        return trimmed.slice(1, -1).replace(/"/g, '').replace(/,/g, ', ');
+      }
+    }
+    
+    return answer;
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] p-0 gap-0">
@@ -105,73 +128,6 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
               </div>
             </section>
 
-            <Separator />
-
-            {/* Professional Details */}
-            <section>
-              <h3 className="text-sm font-semibold text-foreground mb-3">Professional Details</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {applicant.currentCompany && (
-                  <div className="flex items-center gap-3 text-sm">
-                    <Briefcase className="h-4 w-4 text-muted-foreground" />
-                    <span>{applicant.currentCompany}</span>
-                  </div>
-                )}
-                {applicant.education && (
-                  <div className="flex items-center gap-3 text-sm">
-                    <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                    <span>{applicant.education}</span>
-                  </div>
-                )}
-                {applicant.linkedIn && (
-                  <div className="flex items-center gap-3 text-sm">
-                    <Linkedin className="h-4 w-4 text-muted-foreground" />
-                    <a href={applicant.linkedIn} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                      LinkedIn Profile
-                    </a>
-                  </div>
-                )}
-                {applicant.portfolio && (
-                  <div className="flex items-center gap-3 text-sm">
-                    <Globe className="h-4 w-4 text-muted-foreground" />
-                    <a href={applicant.portfolio} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                      Portfolio
-                    </a>
-                  </div>
-                )}
-                {applicant.expectedSalary && (
-                  <div className="flex items-center gap-3 text-sm">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    <span>Expected: {applicant.expectedSalary}</span>
-                  </div>
-                )}
-                {applicant.noticePeriod && (
-                  <div className="flex items-center gap-3 text-sm">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span>Notice: {applicant.noticePeriod}</span>
-                  </div>
-                )}
-              </div>
-            </section>
-
-            <Separator />
-
-            {/* Skills */}
-            <section>
-              <h3 className="text-sm font-semibold text-foreground mb-3">Skills</h3>
-              <div className="flex flex-wrap gap-2">
-                {applicant.skills.map((skill) => (
-                  <Badge
-                    key={skill}
-                    variant="secondary"
-                    className="text-xs font-normal bg-muted text-muted-foreground border-0"
-                  >
-                    {skill}
-                  </Badge>
-                ))}
-              </div>
-            </section>
-
             {applicant.summary && (
               <>
                 <Separator />
@@ -209,7 +165,7 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
                 {applicant.applicationResponses.map((response, index) => (
                   <div key={index} className="bg-muted/30 rounded-lg p-4">
                     <p className="text-sm font-medium text-foreground mb-2">{response.question}</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{response.answer}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{formatAnswer(response.answer)}</p>
                   </div>
                 ))}
               </div>
