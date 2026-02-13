@@ -19,8 +19,8 @@ RUN npm run build
 # Remove devDependencies after build
 RUN npm prune --production
 
-# Expose port
+# Expose port (Railway will use $PORT)
 EXPOSE 8080
 
-# Start the app
-CMD ["npm", "start"]
+# Start the app - use PORT env variable from Railway
+CMD ["sh", "-c", "vite preview --host 0.0.0.0 --port ${PORT:-8080}"]
