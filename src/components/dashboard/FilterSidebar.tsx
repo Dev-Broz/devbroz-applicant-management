@@ -5,12 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { FilterState, JobCategory, ExperienceLevel, EmploymentType } from '@/types/applicant';
+import { ViewTab } from './DataSourceTabs';
 import { cn } from '@/lib/utils';
 
 interface FilterSidebarProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
   availableJobs: { id: string; title: string }[];
+  activeTab: ViewTab;
 }
 
 const jobCategories: JobCategory[] = ['Energy Consultant', 'Renewable Energy', 'Business Consultant'];
@@ -55,7 +57,7 @@ function FilterGroup({ title, icon, children, defaultOpen = true }: FilterGroupP
   );
 }
 
-export function FilterSidebar({ filters, onFiltersChange, availableJobs }: FilterSidebarProps) {
+export function FilterSidebar({ filters, onFiltersChange, availableJobs, activeTab }: FilterSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -163,7 +165,7 @@ export function FilterSidebar({ filters, onFiltersChange, availableJobs }: Filte
         ))}
       </FilterGroup>
 
-      {availableJobs.length > 0 && (
+      {activeTab === 'work-with-us' && availableJobs.length > 0 && (
         <FilterGroup
           title="Job ID / Title"
           icon={<FileText className="h-4 w-4 text-muted-foreground" />}

@@ -23,7 +23,8 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
   if (!applicant) return null;
 
   const handleViewResume = () => {
-    toast.info(`Opening resume for ${applicant.name}`);
+    // Open the sample resume PDF in a new tab
+    window.open('/Sample Resume.pdf', '_blank');
   };
 
   // Clean phone number - remove leading quotes and extra characters

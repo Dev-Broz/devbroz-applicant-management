@@ -12,6 +12,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { ApplicantDetailModal } from './ApplicantDetailModal';
@@ -76,27 +82,28 @@ export function ApplicantTable({
   const showJobColumns = dataSource === 'work-with-us';
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-        <p className="text-xs sm:text-sm text-muted-foreground">
-          {applicants.length} applicant{applicants.length !== 1 ? 's' : ''}
-        </p>
-        <Button
-          onClick={onCreateKanbanProject}
-          variant="outline"
-          disabled={selectedIds.size === 0}
-          size="sm"
-          className="w-full sm:w-auto"
-        >
-          <Plus className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
-          <span className="hidden xs:inline">Create Hiring Pipeline ({selectedIds.size})</span>
-          <span className="xs:hidden">Create Pipeline ({selectedIds.size})</span>
-        </Button>
-      </div>
+    <TooltipProvider>
+      <div className="space-y-3 sm:space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            {applicants.length} applicant{applicants.length !== 1 ? 's' : ''}
+          </p>
+          <Button
+            onClick={onCreateKanbanProject}
+            variant="outline"
+            disabled={selectedIds.size === 0}
+            size="sm"
+            className="w-full sm:w-auto"
+          >
+            <Plus className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden xs:inline">Create Hiring Pipeline ({selectedIds.size})</span>
+            <span className="xs:hidden">Create Pipeline ({selectedIds.size})</span>
+          </Button>
+        </div>
 
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
-        <div className="overflow-x-auto">
-        <Table>
+        <div className="rounded-lg border border-border bg-card overflow-hidden">
+          <div className="overflow-x-auto">
+          <Table>
           <TableHeader>
             <TableRow className="bg-muted/50 hover:bg-muted/50">
               <TableHead className="w-10 sm:w-12">
@@ -175,9 +182,20 @@ export function ApplicantTable({
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="text-xs sm:text-sm max-w-[200px] truncate block">
-                        {applicant.jobDescription || '-'}
-                      </span>
+                      {applicant.jobDescription ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="text-xs sm:text-sm max-w-[200px] truncate block cursor-help">
+                              {applicant.jobDescription}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm">
+                            <p className="text-sm">{applicant.jobDescription}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <span className="text-xs sm:text-sm text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                   </>
                 )}
@@ -231,11 +249,12 @@ export function ApplicantTable({
         </div>
       </div>
 
-      <ApplicantDetailModal
-        applicant={selectedApplicant}
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-      />
-    </div>
+        <ApplicantDetailModal
+          applicant={selectedApplicant}
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+        />
+      </div>
+    </TooltipProvider>
   );
 }
