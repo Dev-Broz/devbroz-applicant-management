@@ -21,13 +21,27 @@ const Index = () => {
   const [workWithUsSelected, setWorkWithUsSelected] = useState<Set<string>>(new Set());
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createDialogSource, setCreateDialogSource] = useState<'talent-pool' | 'work-with-us'>('talent-pool');
-  const [filters, setFilters] = useState<FilterState>({
+  
+  // Separate filter states for each tab
+  const [talentPoolFilters, setTalentPoolFilters] = useState<FilterState>({
     categories: [],
     experienceLevels: [],
     employmentTypes: [],
     jobIds: [],
     searchQuery: '',
   });
+  
+  const [workWithUsFilters, setWorkWithUsFilters] = useState<FilterState>({
+    categories: [],
+    experienceLevels: [],
+    employmentTypes: [],
+    jobIds: [],
+    searchQuery: '',
+  });
+  
+  // Get current filters based on active tab
+  const currentFilters = activeTab === 'talent-pool' ? talentPoolFilters : workWithUsFilters;
+  const setCurrentFilters = activeTab === 'talent-pool' ? setTalentPoolFilters : setWorkWithUsFilters;
 
   const { projects, createProject, deleteProject, getProject } = useKanbanProjects();
 
@@ -96,10 +110,10 @@ const Index = () => {
       .sort((a, b) => a.id.localeCompare(b.id));
   }, [allApplicants]);
 
-  const filterApplicants = (applicants: Applicant[]) => {
+  const filterApplicants = (applicants: Applicant[], filterState: FilterState) => {
     return applicants.filter((applicant) => {
-      if (filters.searchQuery) {
-        const query = filters.searchQuery.toLowerCase();
+      if (filterState.searchQuery) {
+        const query = filterState.searchQuery.toLowerCase();
         
         // Ensure skills is an array
         const skills = Array.isArray(applicant.skills) 
@@ -113,27 +127,27 @@ const Index = () => {
           skills.some((skill) => skill.toLowerCase().includes(query));
         if (!matchesSearch) return false;
       }
-      if (filters.categories.length > 0) {
-        if (!filters.categories.includes(applicant.category)) return false;
+      if (filterState.categories.length > 0) {
+        if (!filterState.categories.includes(applicant.category)) return false;
       }
-      if (filters.experienceLevels.length > 0) {
-        if (!filters.experienceLevels.includes(applicant.experience)) return false;
+      if (filterState.experienceLevels.length > 0) {
+        if (!filterState.experienceLevels.includes(applicant.experience)) return false;
       }
-      if (filters.employmentTypes.length > 0) {
-        if (!filters.employmentTypes.includes(applicant.employmentType)) return false;
+      if (filterState.employmentTypes.length > 0) {
+        if (!filterState.employmentTypes.includes(applicant.employmentType)) return false;
       }
-      if (filters.jobIds.length > 0) {
-        if (!applicant.jobId || !filters.jobIds.includes(applicant.jobId)) return false;
+      if (filterState.jobIds.length > 0) {
+        if (!applicant.jobId || !filterState.jobIds.includes(applicant.jobId)) return false;
       }
       return true;
     });
   };
 
-  const filteredTalentPool = useMemo(() => filterApplicants(talentPool), [talentPool, filters]);
-  const filteredWorkWithUs = useMemo(() => filterApplicants(workWithUs), [workWithUs, filters]);
+  const filteredTalentPool = useMemo(() => filterApplicants(talentPool, talentPoolFilters), [talentPool, talentPoolFilters]);
+  const filteredWorkWithUs = useMemo(() => filterApplicants(workWithUs, workWithUsFilters), [workWithUs, workWithUsFilters]);
 
   const handleSearchChange = (query: string) => {
-    setFilters((prev) => ({ ...prev, searchQuery: query }));
+    setCurrentFilters((prev) => ({ ...prev, searchQuery: query }));
   };
 
   const handleCreateKanbanProject = (source: 'talent-pool' | 'work-with-us') => {
@@ -230,15 +244,15 @@ const Index = () => {
   return (
     <div className="flex h-screen flex-col bg-background">
       <DashboardHeader
-        searchQuery={filters.searchQuery}
+        searchQuery={currentFilters.searchQuery}
         onSearchChange={handleSearchChange}
       />
 
       <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
         {activeTab !== 'kanban-projects' && (
           <FilterSidebar 
-            filters={filters} 
-            onFiltersChange={setFilters}
+            filters={currentFilters} 
+            onFiltersChange={setCurrentFilters}
             availableJobs={availableJobs}
             activeTab={activeTab}
           />
