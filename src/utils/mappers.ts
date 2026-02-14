@@ -250,6 +250,9 @@ function generateApplicationResponsesWithJobListing(firebaseDoc: any, jobListing
   };
   
   for (let i = 1; i <= 25; i++) {
+    // Skip question 21 (C.V.) - not shown on frontend
+    if (i === 21) continue;
+    
     // Check all possible answer field formats
     const answer = firebaseDoc[`answer_${i}`] || firebaseDoc[`question_${i}`];
     
