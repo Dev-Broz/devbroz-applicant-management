@@ -110,7 +110,7 @@ export function ApplicantTable({
               <TableHead className="font-semibold text-xs sm:text-sm min-w-[200px]">Contact</TableHead>
               {showJobColumns && (
                 <>
-                  <TableHead className="font-semibold text-xs sm:text-sm min-w-[100px]">Job ID</TableHead>
+                  <TableHead className="font-semibold text-xs sm:text-sm min-w-[200px]">Job ID & Title</TableHead>
                   <TableHead className="font-semibold text-xs sm:text-sm min-w-[200px]">Job Description</TableHead>
                 </>
               )}
@@ -163,9 +163,16 @@ export function ApplicantTable({
                 {showJobColumns && (
                   <>
                     <TableCell>
-                      <Badge variant="outline" className="font-mono text-[10px] sm:text-xs bg-muted border-0">
-                        {applicant.jobId || '-'}
-                      </Badge>
+                      <div className="space-y-0.5 min-w-0">
+                        <Badge variant="outline" className="font-mono text-[10px] sm:text-xs bg-muted border-0">
+                          {applicant.jobId || '-'}
+                        </Badge>
+                        {applicant.jobTitle && (
+                          <p className="text-xs sm:text-sm text-foreground font-medium truncate">
+                            {applicant.jobTitle}
+                          </p>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <span className="text-xs sm:text-sm max-w-[200px] truncate block">

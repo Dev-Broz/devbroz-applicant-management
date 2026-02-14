@@ -43,6 +43,7 @@ export function mapFirebaseToApplicant(firebaseDoc: any): Applicant {
     
     // Optional fields
     jobId: firebaseDoc.job_id,
+    jobTitle: jobListing.job_title || '',
     jobDescription: jobListing.job_desc || '',
     source: firebaseDoc.source || 'work-with-us',
     

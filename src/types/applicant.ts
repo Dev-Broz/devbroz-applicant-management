@@ -29,6 +29,7 @@ export interface Applicant {
   avatarColor: string;
   // Work With Us specific fields
   jobId?: string;
+  jobTitle?: string;
   jobDescription?: string;
   source: DataSource;
   // Application form responses

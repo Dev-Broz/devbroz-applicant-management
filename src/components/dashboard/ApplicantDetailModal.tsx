@@ -151,6 +151,9 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
                         {applicant.jobId}
                       </Badge>
                     </div>
+                    {applicant.jobTitle && (
+                      <p className="text-base font-semibold text-foreground mb-2">{applicant.jobTitle}</p>
+                    )}
                     <p className="text-sm text-muted-foreground break-words">{applicant.jobDescription}</p>
                   </div>
                 </section>
