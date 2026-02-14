@@ -14,7 +14,7 @@ interface FilterSidebarProps {
 }
 
 const jobCategories: JobCategory[] = ['Energy Consultant', 'Renewable Energy', 'Business Consultant'];
-const experienceLevels: ExperienceLevel[] = ['Fresher', '5-10 Years', '10-15 Years', '15+ Years'];
+const experienceLevels: ExperienceLevel[] = ['0-5 Years', '5-10 Years', '10-15 Years', '15+ Years'];
 const employmentTypes: EmploymentType[] = ['Full-time', 'Freelance'];
 
 interface FilterGroupProps {

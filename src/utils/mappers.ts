@@ -115,24 +115,31 @@ function mapJobTitleToCategory(jobTitle?: string): JobCategory {
  * Map experience string to ExperienceLevel
  */
 function mapExperience(experience?: string): ExperienceLevel {
-  if (!experience) return 'Fresher';
+  if (!experience) return '0-5 Years';
   
-  const lower = experience.toLowerCase();
+  const exp = String(experience).trim();
   
-  if (lower.includes('fresher') || lower.includes('0-') || lower.includes('no experience')) {
-    return 'Fresher';
+  // Handle exact formats from Firebase
+  if (exp === '0-5' || exp.toLowerCase().includes('0-5')) {
+    return '0-5 Years';
   }
-  if (lower.includes('5-10') || lower.includes('5 to 10')) {
+  if (exp === '5-10' || exp.toLowerCase().includes('5-10') || exp.toLowerCase().includes('5 to 10')) {
     return '5-10 Years';
   }
-  if (lower.includes('10-15') || lower.includes('10 to 15')) {
+  if (exp === '10-15' || exp.toLowerCase().includes('10-15') || exp.toLowerCase().includes('10 to 15')) {
     return '10-15 Years';
   }
-  if (lower.includes('15+') || lower.includes('15 plus') || lower.includes('more than 15')) {
+  if (exp === '15+' || exp.toLowerCase().includes('15+') || exp.toLowerCase().includes('15 plus') || exp.toLowerCase().includes('more than 15')) {
     return '15+ Years';
   }
   
-  return 'Fresher';
+  // Handle text formats
+  if (exp.toLowerCase().includes('fresher') || exp.toLowerCase().includes('no experience')) {
+    return '0-5 Years';
+  }
+  
+  // Default to 0-5 Years for invalid values
+  return '0-5 Years';
 }
 
 /**
