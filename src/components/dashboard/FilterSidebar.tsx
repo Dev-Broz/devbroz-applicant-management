@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { Filter, Briefcase, Clock, Users, ChevronDown, ChevronRight } from 'lucide-react';
+import { Filter, Briefcase, Clock, Users, ChevronDown, ChevronRight, ChevronLeft, FileText } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 import { FilterState, JobCategory, ExperienceLevel, EmploymentType } from '@/types/applicant';
 import { cn } from '@/lib/utils';
 
 interface FilterSidebarProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
+  availableJobIds: string[];
 }
 
 const jobCategories: JobCategory[] = ['Energy Consultant', 'Renewable Energy', 'Business Consultant'];
@@ -51,7 +53,9 @@ function FilterGroup({ title, icon, children, defaultOpen = true }: FilterGroupP
   );
 }
 
-export function FilterSidebar({ filters, onFiltersChange }: FilterSidebarProps) {
+export function FilterSidebar({ filters, onFiltersChange, availableJobIds }: FilterSidebarProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   const toggleCategory = (category: JobCategory) => {
     const newCategories = filters.categories.includes(category)
       ? filters.categories.filter((c) => c !== category)
@@ -73,11 +77,43 @@ export function FilterSidebar({ filters, onFiltersChange }: FilterSidebarProps) 
     onFiltersChange({ ...filters, employmentTypes: newTypes });
   };
 
+  const toggleJobId = (jobId: string) => {
+    const newJobIds = filters.jobIds.includes(jobId)
+      ? filters.jobIds.filter((id) => id !== jobId)
+      : [...filters.jobIds, jobId];
+    onFiltersChange({ ...filters, jobIds: newJobIds });
+  };
+
+  if (isCollapsed) {
+    return (
+      <aside className="w-12 shrink-0 border-b md:border-r md:border-b-0 border-sidebar-border bg-sidebar flex items-start justify-center pt-3 md:pt-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsCollapsed(false)}
+          className="h-8 w-8"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </aside>
+    );
+  }
+
   return (
     <aside className="w-full md:w-64 shrink-0 border-b md:border-r md:border-b-0 border-sidebar-border bg-sidebar p-3 md:p-4 max-h-48 md:max-h-none overflow-y-auto md:overflow-visible">
-      <div className="flex items-center gap-2 mb-4 md:mb-6 px-2">
-        <Filter className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-        <span className="font-semibold text-sm md:text-base text-sidebar-foreground">Filters</span>
+      <div className="flex items-center justify-between mb-4 md:mb-6 px-2">
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+          <span className="font-semibold text-sm md:text-base text-sidebar-foreground">Filters</span>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsCollapsed(true)}
+          className="h-8 w-8 hidden md:flex"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
       </div>
 
       <FilterGroup
@@ -136,6 +172,27 @@ export function FilterSidebar({ filters, onFiltersChange }: FilterSidebarProps) 
           </label>
         ))}
       </FilterGroup>
+
+      {availableJobIds.length > 0 && (
+        <FilterGroup
+          title="Job ID"
+          icon={<FileText className="h-4 w-4 text-muted-foreground" />}
+        >
+          {availableJobIds.map((jobId) => (
+            <label
+              key={jobId}
+              className="flex cursor-pointer items-center gap-2 rounded-md py-1.5 text-sm text-sidebar-foreground hover:text-foreground transition-colors"
+            >
+              <Checkbox
+                checked={filters.jobIds.includes(jobId)}
+                onCheckedChange={() => toggleJobId(jobId)}
+                className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              />
+              <span className="font-mono text-xs">{jobId}</span>
+            </label>
+          ))}
+        </FilterGroup>
+      )}
     </aside>
   );
 }

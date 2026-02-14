@@ -12,15 +12,16 @@ export function DashboardHeader({
   onSearchChange,
 }: DashboardHeaderProps) {
   return (
-    <header className="sticky top-0 z-10 flex h-14 sm:h-16 shrink-0 items-center justify-between border-b border-border bg-card px-3 sm:px-4 md:px-6">
-      <div className="flex items-center gap-2 sm:gap-3">
+    <header className="sticky top-0 z-10 flex h-14 sm:h-16 shrink-0 items-center justify-between border-b border-border bg-card px-3 sm:px-4 md:px-6 gap-2 sm:gap-4">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm sm:text-base">
-          R
+          A
         </div>
-        <span className="text-base sm:text-lg font-semibold text-foreground hidden xs:inline">RecruitHub</span>
+        <span className="text-xs sm:text-sm md:text-base font-semibold text-foreground hidden sm:inline whitespace-nowrap">Application Management Tool</span>
+        <span className="text-sm font-semibold text-foreground sm:hidden">AMT</span>
       </div>
 
-      <div className="flex-1 max-w-md mx-2 sm:mx-4 md:mx-8">
+      <div className="flex-1 max-w-xs sm:max-w-md mx-2 sm:mx-4 md:mx-8">
         <div className="relative">
           <Search className="absolute left-2 sm:left-3 top-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 -translate-y-1/2 text-muted-foreground" />
           <Input

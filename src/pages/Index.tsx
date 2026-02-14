@@ -25,6 +25,7 @@ const Index = () => {
     categories: [],
     experienceLevels: [],
     employmentTypes: [],
+    jobIds: [],
     searchQuery: '',
   });
 
@@ -81,6 +82,14 @@ const Index = () => {
   // Combine both tabs for Kanban view (all applicants)
   const allApplicants = useMemo(() => [...talentPool, ...workWithUs], [talentPool, workWithUs]);
 
+  // Extract unique job IDs for filter dropdown
+  const availableJobIds = useMemo(() => {
+    const jobIds = allApplicants
+      .map(app => app.jobId)
+      .filter((id): id is string => Boolean(id));
+    return Array.from(new Set(jobIds)).sort();
+  }, [allApplicants]);
+
   const filterApplicants = (applicants: Applicant[]) => {
     return applicants.filter((applicant) => {
       if (filters.searchQuery) {
@@ -106,6 +115,9 @@ const Index = () => {
       }
       if (filters.employmentTypes.length > 0) {
         if (!filters.employmentTypes.includes(applicant.employmentType)) return false;
+      }
+      if (filters.jobIds.length > 0) {
+        if (!applicant.jobId || !filters.jobIds.includes(applicant.jobId)) return false;
       }
       return true;
     });
@@ -217,7 +229,11 @@ const Index = () => {
       />
 
       <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
-        <FilterSidebar filters={filters} onFiltersChange={setFilters} />
+        <FilterSidebar 
+          filters={filters} 
+          onFiltersChange={setFilters}
+          availableJobIds={availableJobIds}
+        />
 
         <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">
           {!currentProject && (

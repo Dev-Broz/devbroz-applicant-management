@@ -47,6 +47,7 @@ export interface FilterState {
   categories: JobCategory[];
   experienceLevels: ExperienceLevel[];
   employmentTypes: EmploymentType[];
+  jobIds: string[];
   searchQuery: string;
 }
 
