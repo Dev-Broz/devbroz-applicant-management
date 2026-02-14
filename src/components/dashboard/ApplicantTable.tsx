@@ -121,7 +121,9 @@ export function ApplicantTable({
                   <TableHead className="font-semibold text-xs sm:text-sm min-w-[200px]">Job Description</TableHead>
                 </>
               )}
-              <TableHead className="font-semibold text-xs sm:text-sm min-w-[150px]">Category</TableHead>
+              {!showJobColumns && (
+                <TableHead className="font-semibold text-xs sm:text-sm min-w-[150px]">Category</TableHead>
+              )}
               <TableHead className="font-semibold text-xs sm:text-sm min-w-[120px]">Experience</TableHead>
               <TableHead className="font-semibold text-xs sm:text-sm min-w-[100px]">Type</TableHead>
               <TableHead className="font-semibold text-xs sm:text-sm min-w-[120px]">Status</TableHead>
@@ -199,11 +201,13 @@ export function ApplicantTable({
                     </TableCell>
                   </>
                 )}
-                <TableCell>
-                  <Badge variant="outline" className="font-normal text-xs bg-secondary border-0">
-                    {applicant.category}
-                  </Badge>
-                </TableCell>
+                {!showJobColumns && (
+                  <TableCell>
+                    <Badge variant="outline" className="font-normal text-xs bg-secondary border-0">
+                      {applicant.category}
+                    </Badge>
+                  </TableCell>
+                )}
                 <TableCell>
                   <span className="text-xs sm:text-sm">{applicant.experience}</span>
                 </TableCell>

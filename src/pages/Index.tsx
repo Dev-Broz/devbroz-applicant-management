@@ -82,11 +82,12 @@ const Index = () => {
   // Combine both tabs for Kanban view (all applicants)
   const allApplicants = useMemo(() => [...talentPool, ...workWithUs], [talentPool, workWithUs]);
 
-  // Extract unique job IDs with titles for filter dropdown
+  // Extract unique job IDs with titles for filter dropdown (exclude J-001 and J-002)
   const availableJobs = useMemo(() => {
+    const TALENT_POOL_JOB_IDS = ['J-001', 'J-002'];
     const jobMap = new Map<string, string>();
     allApplicants.forEach(app => {
-      if (app.jobId) {
+      if (app.jobId && !TALENT_POOL_JOB_IDS.includes(app.jobId)) {
         jobMap.set(app.jobId, app.jobTitle || '');
       }
     });
@@ -234,12 +235,14 @@ const Index = () => {
       />
 
       <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
-        <FilterSidebar 
-          filters={filters} 
-          onFiltersChange={setFilters}
-          availableJobs={availableJobs}
-          activeTab={activeTab}
-        />
+        {activeTab !== 'kanban-projects' && (
+          <FilterSidebar 
+            filters={filters} 
+            onFiltersChange={setFilters}
+            availableJobs={availableJobs}
+            activeTab={activeTab}
+          />
+        )}
 
         <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">
           {!currentProject && (

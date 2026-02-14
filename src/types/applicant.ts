@@ -1,4 +1,4 @@
-export type JobCategory = 'Energy Consultant' | 'Renewable Energy' | 'Business Consultant';
+export type JobCategory = 'Energy Consultant' | 'Renewable Energy' | 'Business Consultant' | 'Energy' | 'Water';
 
 export type ExperienceLevel = '0-5 Years' | '5-10 Years' | '10-15 Years' | '15+ Years';
 

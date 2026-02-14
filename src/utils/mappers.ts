@@ -34,7 +34,11 @@ export function mapFirebaseToApplicant(firebaseDoc: any): Applicant {
     email: getEmail(),
     phone: phone,
     location: getLocation(),
-    category: mapJobTitleToCategory(getJobTitle()),
+    category: mapJobTitleToCategory(
+      firebaseDoc.job_id,
+      jobListing.job_title || '',
+      getJobTitle()
+    ),
     experience: mapExperience(getExperience()),
     employmentType: mapEmploymentType(getEmploymentType()),
     status: firebaseDoc.status || 'New Applicants',
@@ -95,11 +99,30 @@ function getAvatarColor(name?: string): string {
 
 /**
  * Map job title to category
+ * For Talent Pool entries (J-001, J-002), extract category from job listing title
  */
-function mapJobTitleToCategory(jobTitle?: string): JobCategory {
-  if (!jobTitle) return 'Energy Consultant';
+function mapJobTitleToCategory(jobId?: string, jobListingTitle?: string, applicantJobTitle?: string): JobCategory {
+  // For Talent Pool entries (J-001, J-002), extract category from job listing title
+  const TALENT_POOL_JOB_IDS = ['J-001', 'J-002'];
   
-  const lower = jobTitle.toLowerCase();
+  if (jobId && TALENT_POOL_JOB_IDS.includes(jobId) && jobListingTitle) {
+    // Extract text in parentheses, e.g., "Talent Pool (Energy)" -> "Energy"
+    const match = jobListingTitle.match(/\(([^)]+)\)/);
+    if (match && match[1]) {
+      const category = match[1].trim();
+      // Return as is if it matches known categories, otherwise default
+      if (category === 'Energy' || category === 'Water' || category === 'Renewable Energy' || category === 'Business Consultant') {
+        return category as JobCategory;
+      }
+      // For simple categories like "Energy" or "Water", return them directly
+      return category as JobCategory;
+    }
+  }
+  
+  // For other job listings, use the applicant's job title
+  if (!applicantJobTitle) return 'Energy Consultant';
+  
+  const lower = applicantJobTitle.toLowerCase();
   
   if (lower.includes('renewable') || lower.includes('solar') || lower.includes('wind') || lower.includes('energy')) {
     return 'Renewable Energy';

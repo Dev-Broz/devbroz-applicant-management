@@ -16,6 +16,7 @@ interface FilterSidebarProps {
 }
 
 const jobCategories: JobCategory[] = ['Energy Consultant', 'Renewable Energy', 'Business Consultant'];
+const talentPoolCategories: JobCategory[] = ['Energy', 'Water'];
 const experienceLevels: ExperienceLevel[] = ['0-5 Years', '5-10 Years', '10-15 Years', '15+ Years'];
 const employmentTypes: EmploymentType[] = ['Full-time', 'Freelance'];
 
@@ -108,24 +109,26 @@ export function FilterSidebar({ filters, onFiltersChange, availableJobs, activeT
   // Filter content component (reusable for both mobile and desktop)
   const FilterContent = () => (
     <>
-      <FilterGroup
-        title="Job Category"
-        icon={<Briefcase className="h-4 w-4 text-muted-foreground" />}
-      >
-        {jobCategories.map((category) => (
-          <label
-            key={category}
-            className="flex cursor-pointer items-center gap-2 rounded-md py-1.5 text-sm text-sidebar-foreground hover:text-foreground transition-colors"
-          >
-            <Checkbox
-              checked={filters.categories.includes(category)}
-              onCheckedChange={() => toggleCategory(category)}
-              className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-            />
-            <span>{category}</span>
-          </label>
-        ))}
-      </FilterGroup>
+      {activeTab === 'talent-pool' && (
+        <FilterGroup
+          title="Category"
+          icon={<Briefcase className="h-4 w-4 text-muted-foreground" />}
+        >
+          {talentPoolCategories.map((category) => (
+            <label
+              key={category}
+              className="flex cursor-pointer items-center gap-2 rounded-md py-1.5 text-sm text-sidebar-foreground hover:text-foreground transition-colors"
+            >
+              <Checkbox
+                checked={filters.categories.includes(category)}
+                onCheckedChange={() => toggleCategory(category)}
+                className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              />
+              <span>{category}</span>
+            </label>
+          ))}
+        </FilterGroup>
+      )}
 
       <FilterGroup
         title="Experience Level"
