@@ -82,12 +82,17 @@ const Index = () => {
   // Combine both tabs for Kanban view (all applicants)
   const allApplicants = useMemo(() => [...talentPool, ...workWithUs], [talentPool, workWithUs]);
 
-  // Extract unique job IDs for filter dropdown
-  const availableJobIds = useMemo(() => {
-    const jobIds = allApplicants
-      .map(app => app.jobId)
-      .filter((id): id is string => Boolean(id));
-    return Array.from(new Set(jobIds)).sort();
+  // Extract unique job IDs with titles for filter dropdown
+  const availableJobs = useMemo(() => {
+    const jobMap = new Map<string, string>();
+    allApplicants.forEach(app => {
+      if (app.jobId) {
+        jobMap.set(app.jobId, app.jobTitle || '');
+      }
+    });
+    return Array.from(jobMap.entries())
+      .map(([id, title]) => ({ id, title }))
+      .sort((a, b) => a.id.localeCompare(b.id));
   }, [allApplicants]);
 
   const filterApplicants = (applicants: Applicant[]) => {
@@ -232,7 +237,7 @@ const Index = () => {
         <FilterSidebar 
           filters={filters} 
           onFiltersChange={setFilters}
-          availableJobIds={availableJobIds}
+          availableJobs={availableJobs}
         />
 
         <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">

@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 interface FilterSidebarProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
-  availableJobIds: string[];
+  availableJobs: { id: string; title: string }[];
 }
 
 const jobCategories: JobCategory[] = ['Energy Consultant', 'Renewable Energy', 'Business Consultant'];
@@ -55,7 +55,7 @@ function FilterGroup({ title, icon, children, defaultOpen = true }: FilterGroupP
   );
 }
 
-export function FilterSidebar({ filters, onFiltersChange, availableJobIds }: FilterSidebarProps) {
+export function FilterSidebar({ filters, onFiltersChange, availableJobs }: FilterSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -163,22 +163,27 @@ export function FilterSidebar({ filters, onFiltersChange, availableJobIds }: Fil
         ))}
       </FilterGroup>
 
-      {availableJobIds.length > 0 && (
+      {availableJobs.length > 0 && (
         <FilterGroup
-          title="Job ID"
+          title="Job ID / Title"
           icon={<FileText className="h-4 w-4 text-muted-foreground" />}
         >
-          {availableJobIds.map((jobId) => (
+          {availableJobs.map((job) => (
             <label
-              key={jobId}
-              className="flex cursor-pointer items-center gap-2 rounded-md py-1.5 text-sm text-sidebar-foreground hover:text-foreground transition-colors"
+              key={job.id}
+              className="flex cursor-pointer items-start gap-2 rounded-md py-1.5 text-sm text-sidebar-foreground hover:text-foreground transition-colors"
             >
               <Checkbox
-                checked={filters.jobIds.includes(jobId)}
-                onCheckedChange={() => toggleJobId(jobId)}
-                className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                checked={filters.jobIds.includes(job.id)}
+                onCheckedChange={() => toggleJobId(job.id)}
+                className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary mt-0.5"
               />
-              <span className="font-mono text-xs">{jobId}</span>
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <span className="font-mono text-xs text-foreground">{job.id}</span>
+                {job.title && (
+                  <span className="text-xs text-muted-foreground truncate">{job.title}</span>
+                )}
+              </div>
             </label>
           ))}
         </FilterGroup>

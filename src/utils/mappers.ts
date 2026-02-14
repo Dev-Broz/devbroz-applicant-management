@@ -25,13 +25,14 @@ export function mapFirebaseToApplicant(firebaseDoc: any): Applicant {
   const getEmploymentType = () => firebaseDoc.employmentType || firebaseDoc.answer_22 || firebaseDoc.question_22 || '';
   
   const name = getName();
+  const phone = getPhone().replace(/^['"`]+/, '').trim(); // Clean leading quotes
   
   return {
     id: firebaseDoc.id,
     name: name,
     initials: generateInitials(name),
     email: getEmail(),
-    phone: getPhone(),
+    phone: phone,
     location: getLocation(),
     category: mapJobTitleToCategory(getJobTitle()),
     experience: mapExperience(getExperience()),

@@ -26,6 +26,12 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
     toast.info(`Opening resume for ${applicant.name}`);
   };
 
+  // Clean phone number - remove leading quotes and extra characters
+  const cleanPhoneNumber = (phone: string): string => {
+    if (!phone) return '';
+    return phone.replace(/^['"`]+/, '').trim();
+  };
+
   // Format answer to remove array brackets and quotes
   const formatAnswer = (answer: string): string => {
     if (!answer) return '';
@@ -52,8 +58,8 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] w-[calc(100vw-2rem)] sm:w-full p-0 gap-0">
-        <DialogHeader className="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-border">
-          <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+        <DialogHeader className="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-border pr-12">
+          <div className="flex items-start gap-3 sm:gap-4">
             <div
               className={cn(
                 'flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full text-lg sm:text-xl font-bold text-primary-foreground shrink-0',
@@ -62,8 +68,8 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
             >
               {applicant.initials}
             </div>
-            <div className="flex-1 min-w-0 w-full sm:w-auto">
-              <DialogTitle className="text-lg sm:text-xl font-semibold text-foreground">
+            <div className="flex-1 min-w-0">
+              <DialogTitle className="text-lg sm:text-xl font-semibold text-foreground pr-4">
                 {applicant.name}
               </DialogTitle>
               <p className="text-sm text-muted-foreground mt-1">{applicant.category}</p>
@@ -95,12 +101,14 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
                   {applicant.status}
                 </Badge>
               </div>
+              <div className="mt-3">
+                <Button variant="outline" size="sm" onClick={handleViewResume} className="w-full sm:w-auto">
+                  <FileText className="mr-1.5 h-4 w-4" />
+                  <span className="hidden xs:inline">View Resume</span>
+                  <span className="xs:hidden">Resume</span>
+                </Button>
+              </div>
             </div>
-            <Button variant="outline" size="sm" onClick={handleViewResume} className="w-full sm:w-auto shrink-0">
-              <FileText className="mr-1.5 h-4 w-4" />
-              <span className="hidden xs:inline">View Resume</span>
-              <span className="xs:hidden">Resume</span>
-            </Button>
           </div>
         </DialogHeader>
 
@@ -111,20 +119,20 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
               <h3 className="text-sm font-semibold text-foreground mb-3">Contact Information</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="flex items-center gap-3 text-sm">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span>{applicant.email}</span>
+                  <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="break-all">{applicant.email}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span>{applicant.phone}</span>
+                  <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span>{cleanPhoneNumber(applicant.phone)}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
                   <span>{applicant.location}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>Applied: {applicant.appliedDate}</span>
+                  <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="whitespace-nowrap">Applied: {applicant.appliedDate}</span>
                 </div>
               </div>
             </section>
