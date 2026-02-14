@@ -24,10 +24,12 @@ export function mapFirebaseToApplicant(firebaseDoc: any): Applicant {
   const getNoticePeriod = () => firebaseDoc.noticePeriod || firebaseDoc.answer_18 || firebaseDoc.question_18 || '';
   const getEmploymentType = () => firebaseDoc.employmentType || firebaseDoc.answer_22 || firebaseDoc.question_22 || '';
   
+  const name = getName();
+  
   return {
     id: firebaseDoc.id,
-    name: getName(),
-    initials: generateInitials(getName()),
+    name: name,
+    initials: generateInitials(name),
     email: getEmail(),
     phone: getPhone(),
     location: getLocation(),
