@@ -44,8 +44,8 @@ export function DataSourceTabs({ activeTab, onTabChange, kanbanProjectCount }: D
           )}
         >
           <Kanban className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-          <span className="hidden xs:inline">Kanban Projects</span>
-          <span className="xs:hidden">Kanban</span>
+          <span className="hidden xs:inline">Hiring Pipelines</span>
+          <span className="xs:hidden">Pipelines</span>
           {kanbanProjectCount > 0 && (
             <span className="ml-0.5 sm:ml-1 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
               {kanbanProjectCount}

@@ -89,8 +89,8 @@ export function ApplicantTable({
           className="w-full sm:w-auto"
         >
           <Plus className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
-          <span className="hidden xs:inline">Create Kanban Project ({selectedIds.size})</span>
-          <span className="xs:hidden">Create Project ({selectedIds.size})</span>
+          <span className="hidden xs:inline">Create Hiring Pipeline ({selectedIds.size})</span>
+          <span className="xs:hidden">Create Pipeline ({selectedIds.size})</span>
         </Button>
       </div>
 

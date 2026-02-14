@@ -54,9 +54,9 @@ export function KanbanProjectsList({
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4">
           <Users className="h-8 w-8 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-semibold text-foreground mb-2">No Kanban Projects</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-2">No Hiring Pipelines</h3>
         <p className="text-sm text-muted-foreground max-w-md">
-          Select candidates from the Talent Pool or Work With Us tables and click "Create Kanban Project" to get started.
+          Select candidates from the Talent Pool or Work With Us tables and click "Create Hiring Pipeline" to get started.
         </p>
       </div>
     );

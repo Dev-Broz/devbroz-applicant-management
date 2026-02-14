@@ -39,15 +39,15 @@ export function CreateProjectDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl">Create Kanban Project</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">Create Hiring Pipeline</DialogTitle>
           <DialogDescription className="text-sm">
-            Create a new kanban project with {selectedCount} selected candidate{selectedCount !== 1 ? 's' : ''}.
+            Create a new hiring pipeline with {selectedCount} selected candidate{selectedCount !== 1 ? 's' : ''}.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-3 sm:gap-4 py-3 sm:py-4">
             <div className="grid gap-2">
-              <Label htmlFor="project-name" className="text-sm">Project Name</Label>
+              <Label htmlFor="project-name" className="text-sm">Pipeline Name</Label>
               <Input
                 id="project-name"
                 placeholder="e.g., Q1 2026 Hiring Pipeline"
@@ -63,7 +63,7 @@ export function CreateProjectDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={!projectName.trim()} className="w-full sm:w-auto">
-              Create Project
+              Create Pipeline
             </Button>
           </DialogFooter>
         </form>

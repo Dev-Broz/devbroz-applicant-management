@@ -17,7 +17,7 @@ export function useKanbanProjects() {
         }
       } catch (error) {
         console.error('Failed to fetch projects:', error);
-        toast.error('Failed to load Kanban projects');
+        toast.error('Failed to load hiring pipelines');
       } finally {
         setLoading(false);
       }
@@ -41,7 +41,7 @@ export function useKanbanProjects() {
       }
     } catch (error) {
       console.error('Failed to create project:', error);
-      toast.error('Failed to create Kanban project');
+      toast.error('Failed to create hiring pipeline');
       throw error;
     }
   }, []);

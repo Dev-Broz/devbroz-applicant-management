@@ -148,11 +148,11 @@ export const applicationsApi = {
 };
 
 /**
- * Projects API - Kanban Projects Management
+ * Projects API - Hiring Pipelines Management
  */
 export const projectsApi = {
   /**
-   * Get all Kanban projects
+   * Get all hiring pipelines
    */
   getAll: async () => {
     const response = await fetch(`${API_BASE_URL}/api/projects`);
@@ -178,7 +178,7 @@ export const projectsApi = {
   },
 
   /**
-   * Create new Kanban project
+   * Create new hiring pipeline
    */
   create: async (name: string, applicantIds: string[]) => {
     const response = await fetch(`${API_BASE_URL}/api/projects`, {
@@ -195,7 +195,7 @@ export const projectsApi = {
   },
 
   /**
-   * Update Kanban project
+   * Update hiring pipeline
    */
   update: async (id: string, data: any) => {
     const response = await fetch(`${API_BASE_URL}/api/projects/${id}`, {
@@ -212,7 +212,7 @@ export const projectsApi = {
   },
 
   /**
-   * Delete Kanban project
+   * Delete hiring pipeline
    */
   delete: async (id: string) => {
     const response = await fetch(`${API_BASE_URL}/api/projects/${id}`, {

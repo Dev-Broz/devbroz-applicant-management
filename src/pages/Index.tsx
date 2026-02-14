@@ -147,7 +147,7 @@ const Index = () => {
       setWorkWithUsSelected(new Set());
     }
     
-    // Navigate to kanban projects tab
+    // Navigate to hiring pipelines tab
     setActiveTab('kanban-projects');
   };
 
@@ -176,7 +176,7 @@ const Index = () => {
   const currentProject = selectedProjectId ? getProject(selectedProjectId) : null;
 
   const renderContent = () => {
-    // If viewing a specific kanban project
+    // If viewing a specific hiring pipeline
     if (currentProject) {
       return (
         <KanbanProjectView
