@@ -74,10 +74,10 @@ export function FilterSidebar({ filters, onFiltersChange }: FilterSidebarProps) 
   };
 
   return (
-    <aside className="w-64 shrink-0 border-r border-sidebar-border bg-sidebar p-4">
-      <div className="flex items-center gap-2 mb-6 px-2">
-        <Filter className="h-5 w-5 text-primary" />
-        <span className="font-semibold text-sidebar-foreground">Filters</span>
+    <aside className="w-full md:w-64 shrink-0 border-b md:border-r md:border-b-0 border-sidebar-border bg-sidebar p-3 md:p-4 max-h-48 md:max-h-none overflow-y-auto md:overflow-visible">
+      <div className="flex items-center gap-2 mb-4 md:mb-6 px-2">
+        <Filter className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+        <span className="font-semibold text-sm md:text-base text-sidebar-foreground">Filters</span>
       </div>
 
       <FilterGroup

@@ -57,7 +57,7 @@ export function KanbanBoard({ applicants, onApplicantsChange }: KanbanBoardProps
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-x-auto pb-4 scrollbar-thin">
         {statuses.map((status) => (
           <KanbanColumn
             key={status}

@@ -216,12 +216,12 @@ const Index = () => {
         onSearchChange={handleSearchChange}
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
         <FilterSidebar filters={filters} onFiltersChange={setFilters} />
 
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">
           {!currentProject && (
-            <div className="mb-6">
+            <div className="mb-4 md:mb-6">
               <DataSourceTabs
                 activeTab={activeTab}
                 onTabChange={setActiveTab}

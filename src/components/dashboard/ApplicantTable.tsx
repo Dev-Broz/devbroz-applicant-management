@@ -76,8 +76,8 @@ export function ApplicantTable({
   const showJobColumns = dataSource === 'work-with-us';
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-3 sm:space-y-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
         <p className="text-sm text-muted-foreground">
           {applicants.length} applicants
         </p>
