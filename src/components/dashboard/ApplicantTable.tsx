@@ -77,45 +77,49 @@ export function ApplicantTable({
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-        <p className="text-sm text-muted-foreground">
-          {applicants.length} applicants
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          {applicants.length} applicant{applicants.length !== 1 ? 's' : ''}
         </p>
         <Button
           onClick={onCreateKanbanProject}
           variant="outline"
           disabled={selectedIds.size === 0}
+          size="sm"
+          className="w-full sm:w-auto"
         >
-          <Plus className="mr-2 h-4 w-4" />
-          Create Kanban Project ({selectedIds.size})
+          <Plus className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <span className="hidden xs:inline">Create Kanban Project ({selectedIds.size})</span>
+          <span className="xs:hidden">Create Project ({selectedIds.size})</span>
         </Button>
       </div>
 
       <div className="rounded-lg border border-border bg-card overflow-hidden">
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50 hover:bg-muted/50">
-              <TableHead className="w-12">
+              <TableHead className="w-10 sm:w-12">
                 <Checkbox
                   checked={selectedIds.size === applicants.length && applicants.length > 0}
                   onCheckedChange={toggleSelectAll}
                   className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 />
               </TableHead>
-              <TableHead className="font-semibold">Applicant</TableHead>
-              <TableHead className="font-semibold">Contact</TableHead>
+              <TableHead className="font-semibold text-xs sm:text-sm min-w-[180px]">Applicant</TableHead>
+              <TableHead className="font-semibold text-xs sm:text-sm min-w-[200px]">Contact</TableHead>
               {showJobColumns && (
                 <>
-                  <TableHead className="font-semibold">Job ID</TableHead>
-                  <TableHead className="font-semibold">Job Description</TableHead>
+                  <TableHead className="font-semibold text-xs sm:text-sm min-w-[100px]">Job ID</TableHead>
+                  <TableHead className="font-semibold text-xs sm:text-sm min-w-[200px]">Job Description</TableHead>
                 </>
               )}
-              <TableHead className="font-semibold">Category</TableHead>
-              <TableHead className="font-semibold">Experience</TableHead>
-              <TableHead className="font-semibold">Type</TableHead>
-              <TableHead className="font-semibold">Status</TableHead>
-              <TableHead className="font-semibold">Applied</TableHead>
-              <TableHead className="font-semibold text-right">Actions</TableHead>
+              <TableHead className="font-semibold text-xs sm:text-sm min-w-[150px]">Category</TableHead>
+              <TableHead className="font-semibold text-xs sm:text-sm min-w-[120px]">Experience</TableHead>
+              <TableHead className="font-semibold text-xs sm:text-sm min-w-[100px]">Type</TableHead>
+              <TableHead className="font-semibold text-xs sm:text-sm min-w-[120px]">Status</TableHead>
+              <TableHead className="font-semibold text-xs sm:text-sm min-w-[100px]">Applied</TableHead>
+              <TableHead className="font-semibold text-xs sm:text-sm text-right min-w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -135,48 +139,48 @@ export function ApplicantTable({
                   />
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     <div
                       className={cn(
-                        'flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-primary-foreground',
+                        'flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm font-semibold text-primary-foreground shrink-0',
                         applicant.avatarColor
                       )}
                     >
                       {applicant.initials}
                     </div>
-                    <div>
-                      <p className="font-medium text-foreground">{applicant.name}</p>
-                      <p className="text-xs text-muted-foreground">{applicant.location}</p>
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm sm:text-base text-foreground truncate">{applicant.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{applicant.location}</p>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="space-y-0.5">
-                    <p className="text-sm">{applicant.email}</p>
+                  <div className="space-y-0.5 min-w-0">
+                    <p className="text-xs sm:text-sm truncate">{applicant.email}</p>
                     <p className="text-xs text-muted-foreground">{applicant.phone}</p>
                   </div>
                 </TableCell>
                 {showJobColumns && (
                   <>
                     <TableCell>
-                      <Badge variant="outline" className="font-mono text-xs bg-muted border-0">
+                      <Badge variant="outline" className="font-mono text-[10px] sm:text-xs bg-muted border-0">
                         {applicant.jobId || '-'}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm max-w-[200px] truncate block">
+                      <span className="text-xs sm:text-sm max-w-[200px] truncate block">
                         {applicant.jobDescription || '-'}
                       </span>
                     </TableCell>
                   </>
                 )}
                 <TableCell>
-                  <Badge variant="outline" className="font-normal bg-secondary border-0">
+                  <Badge variant="outline" className="font-normal text-xs bg-secondary border-0">
                     {applicant.category}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <span className="text-sm">{applicant.experience}</span>
+                  <span className="text-xs sm:text-sm">{applicant.experience}</span>
                 </TableCell>
                 <TableCell>
                   <Badge
@@ -194,29 +198,30 @@ export function ApplicantTable({
                 <TableCell>
                   <Badge
                     variant="outline"
-                    className={cn('text-xs font-medium', statusStyles[applicant.status])}
+                    className={cn('text-[10px] sm:text-xs font-medium', statusStyles[applicant.status])}
                   >
                     {applicant.status}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <span className="text-sm text-muted-foreground">{applicant.appliedDate}</span>
+                  <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">{applicant.appliedDate}</span>
                 </TableCell>
                 <TableCell className="text-right">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleViewApplicant(applicant)}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground h-7 sm:h-8 text-xs"
                   >
-                    <Eye className="mr-1.5 h-4 w-4" />
-                    View
+                    <Eye className="mr-0 sm:mr-1.5 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">View</span>
                   </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        </div>
       </div>
 
       <ApplicantDetailModal

@@ -37,31 +37,32 @@ export function CreateProjectDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create Kanban Project</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">Create Kanban Project</DialogTitle>
+          <DialogDescription className="text-sm">
             Create a new kanban project with {selectedCount} selected candidate{selectedCount !== 1 ? 's' : ''}.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-3 sm:gap-4 py-3 sm:py-4">
             <div className="grid gap-2">
-              <Label htmlFor="project-name">Project Name</Label>
+              <Label htmlFor="project-name" className="text-sm">Project Name</Label>
               <Input
                 id="project-name"
                 placeholder="e.g., Q1 2026 Hiring Pipeline"
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
                 autoFocus
+                className="text-sm"
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
               Cancel
             </Button>
-            <Button type="submit" disabled={!projectName.trim()}>
+            <Button type="submit" disabled={!projectName.trim()} className="w-full sm:w-auto">
               Create Project
             </Button>
           </DialogFooter>

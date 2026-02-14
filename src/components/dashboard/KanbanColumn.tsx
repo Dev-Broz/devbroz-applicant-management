@@ -18,10 +18,10 @@ const statusColors: Record<ApplicantStatus, string> = {
 
 export function KanbanColumn({ status, applicants, color }: KanbanColumnProps) {
   return (
-    <div className="flex w-80 shrink-0 flex-col">
-      <div className="mb-3 flex items-center gap-2">
+    <div className="flex w-full sm:w-80 shrink-0 flex-col min-w-[280px]">
+      <div className="mb-2 sm:mb-3 flex items-center gap-2">
         <div className={cn('h-2.5 w-2.5 rounded-full', statusColors[status])} />
-        <h2 className="font-semibold text-foreground">{status}</h2>
+        <h2 className="font-semibold text-sm sm:text-base text-foreground">{status}</h2>
         <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
           {applicants.length}
         </span>

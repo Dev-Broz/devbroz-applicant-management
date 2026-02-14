@@ -51,23 +51,23 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] p-0 gap-0">
-        <DialogHeader className="p-6 pb-4 border-b border-border">
-          <div className="flex items-start gap-4">
+      <DialogContent className="max-w-3xl max-h-[90vh] w-[calc(100vw-2rem)] sm:w-full p-0 gap-0">
+        <DialogHeader className="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-border">
+          <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
             <div
               className={cn(
-                'flex h-16 w-16 items-center justify-center rounded-full text-xl font-bold text-primary-foreground',
+                'flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full text-lg sm:text-xl font-bold text-primary-foreground shrink-0',
                 applicant.avatarColor
               )}
             >
               {applicant.initials}
             </div>
-            <div className="flex-1 min-w-0">
-              <DialogTitle className="text-xl font-semibold text-foreground">
+            <div className="flex-1 min-w-0 w-full sm:w-auto">
+              <DialogTitle className="text-lg sm:text-xl font-semibold text-foreground">
                 {applicant.name}
               </DialogTitle>
-              <p className="text-muted-foreground mt-1">{applicant.category}</p>
-              <div className="flex flex-wrap gap-2 mt-3">
+              <p className="text-sm text-muted-foreground mt-1">{applicant.category}</p>
+              <div className="flex flex-wrap gap-2 mt-2 sm:mt-3">
                 <Badge
                   variant="outline"
                   className={cn(
@@ -96,19 +96,20 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
                 </Badge>
               </div>
             </div>
-            <Button variant="outline" size="sm" onClick={handleViewResume}>
+            <Button variant="outline" size="sm" onClick={handleViewResume} className="w-full sm:w-auto shrink-0">
               <FileText className="mr-1.5 h-4 w-4" />
-              View Resume
+              <span className="hidden xs:inline">View Resume</span>
+              <span className="xs:hidden">Resume</span>
             </Button>
           </div>
         </DialogHeader>
 
         <ScrollArea className="flex-1 max-h-[calc(90vh-200px)]">
-          <div className="p-6 space-y-6">
+          <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             {/* Contact Information */}
             <section>
               <h3 className="text-sm font-semibold text-foreground mb-3">Contact Information</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="flex items-center gap-3 text-sm">
                   <Mail className="h-4 w-4 text-muted-foreground" />
                   <span>{applicant.email}</span>
@@ -144,13 +145,13 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
                 <Separator />
                 <section>
                   <h3 className="text-sm font-semibold text-foreground mb-3">Applied Position</h3>
-                  <div className="bg-muted/50 rounded-lg p-4">
+                  <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge variant="outline" className="font-mono text-xs bg-muted border-0">
                         {applicant.jobId}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">{applicant.jobDescription}</p>
+                    <p className="text-sm text-muted-foreground break-words">{applicant.jobDescription}</p>
                   </div>
                 </section>
               </>
@@ -160,12 +161,12 @@ export function ApplicantDetailModal({ applicant, open, onOpenChange }: Applican
 
             {/* Application Form Responses */}
             <section>
-              <h3 className="text-sm font-semibold text-foreground mb-4">Application Form Responses</h3>
-              <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-foreground mb-3 sm:mb-4">Application Form Responses</h3>
+              <div className="space-y-3 sm:space-y-4">
                 {applicant.applicationResponses.map((response, index) => (
-                  <div key={index} className="bg-muted/30 rounded-lg p-4">
-                    <p className="text-sm font-medium text-foreground mb-2">{response.question}</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{formatAnswer(response.answer)}</p>
+                  <div key={index} className="bg-muted/30 rounded-lg p-3 sm:p-4">
+                    <p className="text-sm font-medium text-foreground mb-1.5 sm:mb-2">{response.question}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed break-words">{formatAnswer(response.answer)}</p>
                   </div>
                 ))}
               </div>
